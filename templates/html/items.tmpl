@@ -1,0 +1,49 @@
+{{ template "header.tmpl" }}
+<title>Склад комплектующих</title>
+</head>
+<body>
+    <div class="p-3 bg-black text-white header">
+        <div class="container">
+            <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+                <a href="/items" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+                    <img src="https://raw.githubusercontent.com/DanilaNik/IU5_RIP2023/lab1/resources/fulfillment-logo.png" alt="Logo" class="logo">
+                </a>
+
+                <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                    <li><a href="/items" class="nav-link px-2 text-white">Комплектующие </a></li>
+                    <li><a href="/requests" class="nav-link px-2 text-white">Заявки</a></li>
+                </ul>
+                <form class="col-12 col-lg-auto mb-3 mb-lg-auto me-lg-3" role="search" action="/items" method="GET">
+                    <div class="input-group">
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle bg-white text-dark" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                Выбрать фильтр
+                            </button>
+                            <select class="dropdown-menu" aria-labelledby="dropdownMenuButton" name="filter">
+                                <option value="">Без фильтра</option>
+                                <option value="min" {{ if eq .Filter "min" }}selected{{ end }}>По количеству(MIN)</option>
+                                <option value="max" {{ if eq .Filter "max" }}selected{{ end }}>По количеству(MAX)</option>
+                            </select>
+                        </div>
+                       <input type="search" class="form-control form-control-dark text-bg-dark" name="search" placeholder="Введите название/штрих код" aria-label="Search" value="{{ .SearchText }}">
+                        <button type="submit" class="btn btn-secondary" style="background-color: #ffae00; color: #18181B;">Применить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="card-grid">
+        {{ range .Items }}
+            <div class="card">
+                <div class="container-card">
+                    <a href="/item/{{ .Barcode }}" class="title">{{ .Name }}</a>
+                </div>
+                <a href="/item/{{ .Barcode }}">
+                    <img src="{{ .ImageURL }}"
+                        alt="Image"
+                        class="photo" id="image-{{ .ID }}">
+                </a>
+            </div>
+        {{ end }}
+    </div>
+{{ template "footer.tmpl" }}

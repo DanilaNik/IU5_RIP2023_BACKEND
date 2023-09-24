@@ -1,0 +1,5 @@
+env: "local" # local, dev, prod
+http_server:
+  address: "localhost:8080"
+  timeout: 10s
+  idle_timeout: 100s
