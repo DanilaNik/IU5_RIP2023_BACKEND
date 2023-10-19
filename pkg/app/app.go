@@ -1,64 +1,101 @@
 package app
 
 import (
-	"net/http"
-	"os"
-
-	"github.com/DanilaNik/IU5_RIP2023/internal/http-server/handlers/item"
-	"github.com/DanilaNik/IU5_RIP2023/internal/http-server/handlers/itemCard"
+	"fmt"
+	"github.com/DanilaNik/IU5_RIP2023/internal/config"
+	"github.com/DanilaNik/IU5_RIP2023/internal/http-server/handlers"
 	"github.com/gin-gonic/gin"
-	"golang.org/x/exp/slog"
+	"github.com/sirupsen/logrus"
+	"net/http"
 )
 
-func StartServer() {
-	// cfg := config.MustLoad()
+type Application struct {
+	Config  *config.Config
+	Logger  *logrus.Logger
+	Router  *gin.Engine
+	Handler *handlers.Handler
+}
 
-	// log := setupLogger(cfg.Env)
-	// log.Info("starting service", slog.String("env", cfg.Env))
-	// log.Debug("debug messages are enabled")
+func New(c *config.Config, r *gin.Engine, l *logrus.Logger, h *handlers.Handler) *Application {
+	return &Application{
+		Config:  c,
+		Router:  r,
+		Logger:  l,
+		Handler: h,
+	}
+}
 
-	r := gin.Default()
-	r.GET("/ping", func(ctx *gin.Context) {
+func (a *Application) Run() {
+	a.Logger.Info("Starting service")
+
+	a.Router.GET("/ping", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{
 			"message": "pong",
 		})
 	})
 
-	registerStatic(r)
+	registerStatic(a.Router)
 
-	r.GET("/items", item.New)
-	r.GET("/item/:id", itemCard.New)
+	a.Router.GET("/items", a.Handler.NewGetItems)
+	a.Router.GET("/item/:id", a.Handler.NewGetItemById)
+	a.Router.POST("/item/delete/:id", a.Handler.NewDeleteItem)
 
-	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
-
-	// log.Error("Server down")
-}
-
-const (
-	envLocal = "local"
-	envDev   = "dev"
-	envProd  = "prod"
-)
-
-func setupLogger(env string) *slog.Logger {
-	var log *slog.Logger
-
-	switch env {
-	case envLocal:
-		log = slog.New(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
-	case envDev:
-		log = slog.New(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
-	case envProd:
-		log = slog.New(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
-		)
+	serverAddress := fmt.Sprintf("%s:%d", a.Config.ServiceHost, a.Config.ServicePort)
+	if err := a.Router.Run(serverAddress); err != nil {
+		a.Logger.Fatal(err)
 	}
-	return log
+	a.Logger.Error("Server down")
 }
+
+//func StartServer() {
+//	// cfg := config.MustLoad()
+//
+//	// log := setupLogger(cfg.Env)
+//	// log.Info("starting service", slog.String("env", cfg.Env))
+//	// log.Debug("debug messages are enabled")
+//
+//	r := gin.Default()
+//	r.GET("/ping", func(ctx *gin.Context) {
+//		ctx.JSON(http.StatusOK, gin.H{
+//			"message": "pong",
+//		})
+//	})
+//
+//	registerStatic(r)
+//
+//	r.GET("/items", item.New)
+//	r.GET("/item/:id", itemCard.New)
+//
+//	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+//
+//	// log.Error("Server down")
+//}
+
+//const (
+//	envLocal = "local"
+//	envDev   = "dev"
+//	envProd  = "prod"
+//)
+//
+//func setupLogger(env string) *slog.Logger {
+//	var log *slog.Logger
+//
+//	switch env {
+//	case envLocal:
+//		log = slog.New(
+//			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
+//		)
+//	case envDev:
+//		log = slog.New(
+//			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
+//		)
+//	case envProd:
+//		log = slog.New(
+//			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
+//		)
+//	}
+//	return log
+//}
 
 func registerStatic(router *gin.Engine) {
 	router.LoadHTMLGlob("templates/html/*")

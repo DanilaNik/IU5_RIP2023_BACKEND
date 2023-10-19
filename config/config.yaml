@@ -1,0 +1,2 @@
+service_host: "localhost"
+service_port: 8181

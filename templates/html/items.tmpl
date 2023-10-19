@@ -36,13 +36,18 @@
         {{ range .Items }}
             <div class="card">
                 <div class="container-card">
-                    <a href="/item/{{ .Barcode }}" class="title">{{ .Name }}</a>
+                    <a href="/item/{{ .ID }}" class="title">{{ .Name }}</a>
                 </div>
-                <a href="/item/{{ .Barcode }}">
+                <a href="/item/{{ .ID }}">
                     <img src="{{ .ImageURL }}"
                         alt="Image"
                         class="photo" id="image-{{ .ID }}">
                 </a>
+                <div class="description">
+                    <form method="POST" action="/item/delete/{{ .ID}}" class="del">
+                        <button type="submit" class="btn_submit"> <img src="https://raw.githubusercontent.com/DanilaNik/IU5_RIP2023/lab1/resources/del.png" class="delete-icon" alt="Delete" class="btn_del"> </button>
+                    </form>
+                </div>
             </div>
         {{ end }}
     </div>

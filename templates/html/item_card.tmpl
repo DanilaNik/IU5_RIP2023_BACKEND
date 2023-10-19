@@ -17,7 +17,7 @@
         </div>
     </div>
     <div class="item-card-body">
-        {{ if eq .Status "ok" }}
+        {{ if eq .Status "enabled" }}
             <div class="card-container">
                 {{ range .Items }}
                     <img src="{{ .ImageURL }}" style="width: 150px; height: 150px; object-fit: cover;" alt="Image"/>
@@ -32,7 +32,7 @@
                 {{ end }}
             </div>
         {{ else }} 
-        <h2 style="text-align: center;">Ничего не найдено</h2>
+            <h2 style="text-align: center;">Ничего не найдено</h2>
         {{ end }}
     </div>
 {{ template "footer.tmpl" }}

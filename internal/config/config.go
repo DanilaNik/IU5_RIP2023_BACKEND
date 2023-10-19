@@ -1,38 +1,46 @@
 package config
 
 import (
-	"github.com/ilyakaznacheev/cleanenv"
-	"log"
+	"github.com/joho/godotenv"
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"os"
-	"time"
 )
 
 type Config struct {
-	Env        string `yaml:"env" env-default:"local"`
-	HTTPServer `yaml:"http_server"`
+	ServiceHost string `yaml:"service_host"`
+	ServicePort int    `yaml:"service_port"`
 }
 
-type HTTPServer struct {
-	Address     string        `yaml:"address" env-default:"localhost:8080"`
-	Timeout     time.Duration `yaml:"timeout" env-default:"4s"`
-	IdleTimeout time.Duration `yaml:"idle_timeout" env-default:"60s"`
-}
+func NewConfig(log *logrus.Logger) (*Config, error) {
+	var err error
 
-func MustLoad() *Config {
-	configPath := os.Getenv("CONFIG_PATH")
-	if configPath == "" {
-		log.Fatal("CONFIG_PATH is not set")
+	configName := "config"
+	_ = godotenv.Load()
+	if os.Getenv("CONFIG_NAME") != "" {
+		configName = os.Getenv("CONFIG_NAME")
 	}
 
-	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		log.Fatalf("config file does not exist %s", configPath)
+	viper.SetConfigName(configName)
+	viper.SetConfigType("toml")
+	viper.AddConfigPath("config")
+	viper.AddConfigPath(".")
+	viper.WatchConfig()
+
+	err = viper.ReadInConfig()
+	if err != nil {
+		return nil, err
 	}
 
-	var cfg Config
-
-	if err := cleanenv.ReadConfig(configPath, &cfg); err != nil {
-		log.Fatalf("cannot read config: %s", err)
+	cfg := &Config{}
+	err = viper.Unmarshal(cfg)
+	if err != nil {
+		return nil, err
 	}
 
-	return &cfg
+	log.Info("config parsed")
+	log.Info(cfg.ServiceHost)
+	log.Info(cfg.ServicePort)
+
+	return cfg, nil
 }
