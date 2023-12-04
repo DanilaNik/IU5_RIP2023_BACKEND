@@ -1,10 +1,11 @@
 package handlers
 
 import (
-	"github.com/DanilaNik/IU5_RIP2023/internal/ds"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"sort"
+
+	"github.com/DanilaNik/IU5_RIP2023/internal/ds"
+	"github.com/gin-gonic/gin"
 )
 
 func (h *Handler) NewGetItems(ctx *gin.Context) {
@@ -19,6 +20,16 @@ func (h *Handler) NewGetItems(ctx *gin.Context) {
 	filteredItems := filterItems(*items, filter)
 	ctx.HTML(http.StatusOK, "items.tmpl", ds.ItemsData{Items: filteredItems, Filter: filter, SearchText: searchText})
 	return
+}
+
+func (h *Handler) JSONGetItems(ctx *gin.Context) {
+	searchText := ctx.Query("")
+	items, err := h.Repository.GetItems(searchText)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+		return
+	}
+	ctx.JSON(http.StatusOK, items)
 }
 
 func filterItems(arr []ds.Item, f string) []ds.Item {

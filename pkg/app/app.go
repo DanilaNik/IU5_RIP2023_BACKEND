@@ -2,11 +2,12 @@ package app
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/DanilaNik/IU5_RIP2023/internal/config"
 	"github.com/DanilaNik/IU5_RIP2023/internal/http-server/handlers"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"net/http"
 )
 
 type Application struct {
@@ -36,9 +37,16 @@ func (a *Application) Run() {
 
 	registerStatic(a.Router)
 
-	a.Router.GET("/items", a.Handler.NewGetItems)
-	a.Router.GET("/item/:id", a.Handler.NewGetItemById)
-	a.Router.POST("/item/delete/:id", a.Handler.NewDeleteItem)
+	a.Router.GET("/items", a.Handler.JSONGetItems)
+	a.Router.GET("/item/:id", a.Handler.JSONGetItemById)
+	a.Router.POST("/item/delete/:id", a.Handler.JSONDeleteItem)
+	a.Router.GET("/users", a.Handler.JSONGetUsers)
+	a.Router.GET("/user/:id", a.Handler.JSONGetUserById)
+	a.Router.POST("/user/delete/:id", a.Handler.JSONDeleteUser)
+	a.Router.GET("/orders", a.Handler.JSONGetRequests)
+	a.Router.GET("/order/:id", a.Handler.JSONGetRequestById)
+	a.Router.POST("/order/delete/:id", a.Handler.JSONDeleteRequest)
+	//a.Router.GET("/orders/user/:id", a.Handler.JSONGetUserRequests)
 
 	serverAddress := fmt.Sprintf("%s:%d", a.Config.ServiceHost, a.Config.ServicePort)
 	if err := a.Router.Run(serverAddress); err != nil {
