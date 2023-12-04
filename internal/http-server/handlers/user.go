@@ -2,8 +2,10 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
+	"github.com/DanilaNik/IU5_RIP2023/internal/ds"
 	"github.com/gin-gonic/gin"
 )
 
@@ -58,4 +60,41 @@ func (h *Handler) JSONDeleteUser(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"error: ": err.Error})
+}
+
+func (h *Handler) CreateUser(ctx *gin.Context) {
+	jsonData, err := ctx.GetRawData()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
+		return
+	}
+	var user ds.User
+	err = json.Unmarshal(jsonData, &user)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
+		return
+	}
+	err = h.Repository.CreateUser(user)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"error: ": err.Error})
+}
+
+func (h *Handler) RegisterUser(user ds.User) (ds.User, error) {
+	candidate, err := h.Repository.GetUserByLogin(user.Login)
+	if err != nil {
+		return ds.User{}, err
+	}
+	if candidate.Email == user.Email {
+		return ds.User{}, errors.New("пользователь сущетсвует")
+	}
+
+	err = h.Repository.CreateUser(user)
+	if err != nil {
+		return ds.User{}, err
+	}
+
+	return user, nil
 }

@@ -24,3 +24,20 @@ func (r *Repository) DeleteUser(id int) error {
 	}
 	return nil
 }
+
+func (r *Repository) CreateUser(user ds.User) error {
+	err := r.db.Table("users").Create(&user).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Repository) GetUserByLogin(login string) (*ds.User, error) {
+	user := &ds.User{}
+	err := r.db.First(user, "login=?", login).Find(user).Error
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}

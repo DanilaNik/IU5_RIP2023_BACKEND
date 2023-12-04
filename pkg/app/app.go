@@ -36,7 +36,6 @@ func (a *Application) Run() {
 	})
 
 	registerStatic(a.Router)
-
 	a.Router.GET("/items", a.Handler.JSONGetItems)
 	a.Router.GET("/item/:id", a.Handler.JSONGetItemById)
 	a.Router.POST("/item/delete/:id", a.Handler.JSONDeleteItem)
@@ -47,6 +46,10 @@ func (a *Application) Run() {
 	a.Router.GET("/order/:id", a.Handler.JSONGetRequestById)
 	a.Router.POST("/order/delete/:id", a.Handler.JSONDeleteRequest)
 	//a.Router.GET("/orders/user/:id", a.Handler.JSONGetUserRequests)
+
+	//Authorization
+	// a.Router.POST("/register", a.Handler.Registr)
+	// a.Router.POST("/login", a.Handler.Login)
 
 	serverAddress := fmt.Sprintf("%s:%d", a.Config.ServiceHost, a.Config.ServicePort)
 	if err := a.Router.Run(serverAddress); err != nil {
