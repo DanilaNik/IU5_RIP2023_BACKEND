@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (h *Handler) JSONGetRequests(ctx *gin.Context) {
+func (h *Handler) GetRequests(ctx *gin.Context) {
 	users, err := h.Repository.GetRequests()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
@@ -16,7 +16,7 @@ func (h *Handler) JSONGetRequests(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, users)
 }
 
-func (h *Handler) JSONGetRequestById(ctx *gin.Context) {
+func (h *Handler) GetRequestById(ctx *gin.Context) {
 	jsonData, err := ctx.GetRawData()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
@@ -38,7 +38,7 @@ func (h *Handler) JSONGetRequestById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, user)
 }
 
-func (h *Handler) JSONDeleteRequest(ctx *gin.Context) {
+func (h *Handler) DeleteRequest(ctx *gin.Context) {
 	jsonData, err := ctx.GetRawData()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
@@ -52,7 +52,7 @@ func (h *Handler) JSONDeleteRequest(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 		return
 	}
-	err = h.Repository.DeleteUser(int(id.Id))
+	err = h.Repository.DeleteRequest(int(id.Id))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 		return
@@ -74,7 +74,7 @@ func (h *Handler) UpdateRequestStatus(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 		return
 	}
-	err = h.Repository.DeleteUser(int(id.Id))
+	err = h.Repository.DeleteRequest(int(id.Id))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 		return

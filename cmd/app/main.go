@@ -5,6 +5,7 @@ import (
 	"github.com/DanilaNik/IU5_RIP2023/internal/dsn"
 	"github.com/DanilaNik/IU5_RIP2023/internal/http-server/handlers"
 	"github.com/DanilaNik/IU5_RIP2023/internal/repository"
+	auth "github.com/DanilaNik/IU5_RIP2023/internal/service/authorization"
 	"github.com/DanilaNik/IU5_RIP2023/pkg/app"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -26,7 +27,8 @@ func main() {
 	if err != nil {
 		logger.Fatalf("Error init storage: %s", err)
 	}
-	handler := handlers.NewHandler(logger, db)
+	auth := auth.NewAuthorizationService(db)
+	handler := handlers.NewHandler(logger, db, auth)
 	application := app.New(cfg, router, logger, handler)
 	application.Run()
 }

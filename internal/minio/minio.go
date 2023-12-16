@@ -13,11 +13,10 @@ type MinioClient struct {
 }
 
 func NewMinioClient(cfg *config.Config) *MinioClient {
-
 	useSSL := false
 
-	minioClient, err := minio.New(config.Minio.Endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(config.Minio.User, config.Minio.Pass, ""),
+	minioClient, err := minio.New(cfg.Minio.Endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(cfg.Minio.User, cfg.Minio.Pass, ""),
 		Secure: useSSL,
 	})
 	if err != nil {

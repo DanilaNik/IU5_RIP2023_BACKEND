@@ -2,19 +2,22 @@ package handlers
 
 import (
 	"github.com/DanilaNik/IU5_RIP2023/internal/repository"
+	auth "github.com/DanilaNik/IU5_RIP2023/internal/service/authorization"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
 type Handler struct {
-	Logger     *logrus.Logger
-	Repository *repository.Repository
+	Logger               *logrus.Logger
+	Repository           *repository.Repository
+	AuthorizationService *auth.AuthorizationService
 }
 
-func NewHandler(log *logrus.Logger, r *repository.Repository) *Handler {
+func NewHandler(log *logrus.Logger, r *repository.Repository, a *auth.AuthorizationService) *Handler {
 	return &Handler{
-		Logger:     log,
-		Repository: r,
+		Logger:               log,
+		Repository:           r,
+		AuthorizationService: a,
 	}
 }
 

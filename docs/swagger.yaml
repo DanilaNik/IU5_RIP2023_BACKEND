@@ -1,0 +1,137 @@
+definitions:
+  httpmodels.TestingLoginRequest:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+  httpmodels.TestingLoginResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  httpmodels.TestingRegisterRequest:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      image_url:
+        type: string
+      login:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+      userName:
+        type: string
+    type: object
+  httpmodels.TestingRegisterResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      image_url:
+        type: string
+      login:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+      userName:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Login with the provided user credentials and receive a JWT token
+      parameters:
+      - description: User credentials for login
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/httpmodels.TestingLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/httpmodels.TestingLoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login
+      tags:
+      - users
+  /protected/test:
+    get:
+      consumes:
+      - application/json
+      description: Test endpoint accessible only with valid Bearer Token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Protected test endpoint
+      tags:
+      - users
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with the provided user data
+      parameters:
+      - description: User data to register
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/httpmodels.TestingRegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/httpmodels.TestingRegisterResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register
+      tags:
+      - users
+swagger: "2.0"
