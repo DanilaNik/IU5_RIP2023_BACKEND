@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"github.com/DanilaNik/IU5_RIP2023/internal/minio"
 	"github.com/DanilaNik/IU5_RIP2023/internal/repository"
 	auth "github.com/DanilaNik/IU5_RIP2023/internal/service/authorization"
+	itemservice "github.com/DanilaNik/IU5_RIP2023/internal/service/itemService"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
@@ -11,13 +13,17 @@ type Handler struct {
 	Logger               *logrus.Logger
 	Repository           *repository.Repository
 	AuthorizationService *auth.AuthorizationService
+	ItemService          *itemservice.ItemService
+	Minio                *minio.MinioClient
 }
 
-func NewHandler(log *logrus.Logger, r *repository.Repository, a *auth.AuthorizationService) *Handler {
+func NewHandler(log *logrus.Logger, r *repository.Repository, a *auth.AuthorizationService, i *itemservice.ItemService, m *minio.MinioClient) *Handler {
 	return &Handler{
 		Logger:               log,
 		Repository:           r,
 		AuthorizationService: a,
+		ItemService:          i,
+		Minio:                m,
 	}
 }
 

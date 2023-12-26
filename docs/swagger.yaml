@@ -1,4 +1,37 @@
 definitions:
+  httpmodels.Item:
+    properties:
+      barcode:
+        type: integer
+      depth:
+        type: integer
+      height:
+        type: integer
+      id:
+        type: integer
+      image_url:
+        type: string
+      name:
+        type: string
+      quantity:
+        type: integer
+      status:
+        type: string
+      width:
+        type: integer
+    type: object
+  httpmodels.TestingGetItemByIDResponse:
+    properties:
+      item:
+        $ref: '#/definitions/httpmodels.Item'
+    type: object
+  httpmodels.TestingGetItemsResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/httpmodels.Item'
+        type: array
+    type: object
   httpmodels.TestingLoginRequest:
     properties:
       login:
@@ -48,6 +81,60 @@ definitions:
 info:
   contact: {}
 paths:
+  /item:
+    get:
+      consumes:
+      - application/json
+      description: Get data about item
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/httpmodels.TestingGetItemByIDResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: GetItemById
+      tags:
+      - items
+  /items:
+    get:
+      consumes:
+      - application/json
+      description: Get data about active items
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/httpmodels.TestingGetItemsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: GetItems
+      tags:
+      - items
   /login:
     post:
       consumes:

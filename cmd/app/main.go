@@ -4,8 +4,11 @@ import (
 	"github.com/DanilaNik/IU5_RIP2023/internal/config"
 	"github.com/DanilaNik/IU5_RIP2023/internal/dsn"
 	"github.com/DanilaNik/IU5_RIP2023/internal/http-server/handlers"
+	"github.com/DanilaNik/IU5_RIP2023/internal/minio"
 	"github.com/DanilaNik/IU5_RIP2023/internal/repository"
 	auth "github.com/DanilaNik/IU5_RIP2023/internal/service/authorization"
+	itemservice "github.com/DanilaNik/IU5_RIP2023/internal/service/itemService"
+
 	"github.com/DanilaNik/IU5_RIP2023/pkg/app"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -18,6 +21,7 @@ import (
 func main() {
 	logger := logrus.New()
 	router := gin.Default()
+	router.Use(CORSMiddleware())
 	cfg, err := config.NewConfig(logger)
 	if err != nil {
 		logger.Fatalf("Error read configuration file: %s", err)
@@ -28,7 +32,26 @@ func main() {
 		logger.Fatalf("Error init storage: %s", err)
 	}
 	auth := auth.NewAuthorizationService(db)
-	handler := handlers.NewHandler(logger, db, auth)
+	item := itemservice.NewItemService(db)
+	minoCl := minio.NewMinioClient(cfg)
+	handler := handlers.NewHandler(logger, db, auth, item, minoCl)
 	application := app.New(cfg, router, logger, handler)
 	application.Run()
+}
+
+func CORSMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Credentials", "true")
+		c.Header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Header("Access-Control-Allow-Methods", "POST,HEAD,PATCH, OPTIONS, GET, PUT")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	}
 }

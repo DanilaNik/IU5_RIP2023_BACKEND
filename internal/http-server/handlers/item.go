@@ -1,37 +1,118 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 	"sort"
+	"strconv"
 
 	"github.com/DanilaNik/IU5_RIP2023/internal/ds"
+	"github.com/DanilaNik/IU5_RIP2023/internal/httpmodels"
 	"github.com/gin-gonic/gin"
 )
 
-func (h *Handler) NewGetItems(ctx *gin.Context) {
-	filter := ctx.Query("filter")
-	searchText := ctx.Query("search")
-	items, err := h.Repository.GetItems(searchText)
-	if err != nil {
-		h.Logger.Error(err.Error())
-		h.Error(ctx, http.StatusInternalServerError, err)
-		return
-	}
-	filteredItems := filterItems(*items, filter)
-	ctx.HTML(http.StatusOK, "items.tmpl", ds.ItemsData{Items: filteredItems, Filter: filter, SearchText: searchText})
-	return
-}
+// // LoadS3 godoc
+// // @Summary      Upload s3 file
+// // @Tags         s3
+// // @Param file formData file true "upload file"
+// // @Param metadata formData string false "metadata"
+// // @Accept      mpfd
+// // @Accept       json
+// // @Produce      json
+// // @Success      200  {object}  Empty
+// // @Router       /s3/upload [post]
+// func (h *Handler) LoadS3(ctx *gin.Context) {
+// 	file, err := ctx.FormFile("file")
 
+// 	// The file cannot be received.
+// 	if err != nil {
+// 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+// 			"message": "No file is received",
+// 		})
+// 		return
+// 	}
+
+// 	// Retrieve file information
+// 	extension := filepath.Ext(file.Filename)
+// 	newFileName := uuid.New().String() + extension
+// 	// filePath := "/files/" + newFileName
+// 	contentType := file.Header["Content-Type"][0]
+// 	buffer, err := file.Open()
+// 	if err != nil {
+// 		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+// 		return
+// 	}
+// 	h.Minio.PutObject(context.Background(), "cnc", newFileName, buffer, file.Size, minio.PutObjectOptions{ContentType: contentType})
+// 	reqParams := make(url.Values)
+// 	link, err := h.Minio.PresignedGetObject(context.Background(), "cnc", newFileName, 7*24*time.Hour, reqParams)
+// 	if link == nil {
+// 		ctx.JSON(http.StatusInternalServerError, gin.H{
+// 			"link": "",
+// 			"err":  err,
+// 		})
+// 	}
+// 	ctx.JSON(http.StatusOK, gin.H{
+// 		"link": link.String(),
+// 		"err":  err,
+// 	})
+// }
+
+// @Summary GetItems
+// @Description Get data about active items
+// @Tags items
+// @Accept  json
+// @Produce  json
+// @Success 201 {object} httpmodels.TestingGetItemsResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /items [get]
 func (h *Handler) GetItems(ctx *gin.Context) {
-	searchText := ctx.Query("")
-	items, err := h.Repository.GetItems(searchText)
+	searchText := ctx.Query("search")
+	req := httpmodels.TestingGetItemsRequest{
+		SearchText: searchText,
+	}
+	resp, err := h.ItemService.GetItems(ctx, &req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
 		return
 	}
-	ctx.JSON(http.StatusOK, items)
+	ctx.JSON(http.StatusOK, resp)
 }
+
+// @Summary GetItemById
+// @Description Get data about item
+// @Tags items
+// @Accept  json
+// @Produce  json
+// @Success 201 {object} httpmodels.TestingGetItemByIDResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /item [get]
+func (h *Handler) GetItemById(ctx *gin.Context) {
+	idValue := ctx.Param("id")
+	id, _ := strconv.Atoi(idValue)
+	req := httpmodels.TestingGetItemByIDRequest{
+		ID: int64(id),
+	}
+
+	resp, err := h.ItemService.GetItemByID(ctx, &req)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+		return
+	}
+	ctx.JSON(http.StatusOK, resp)
+}
+
+// func (h *Handler) DeleteItem(ctx *gin.Context) {
+// 	req := httpmodels.TestingDeleteItemRequest{}
+// 	if err := ctx.ShouldBindJSON(&req); err != nil {
+// 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+// 		return
+// 	}
+
+// 	err := h.ItemService.DeleteItem(ctx, &req)
+
+// 	ctx.JSON(http.StatusOK, gin.H{"error: ": err.Error})
+// }
 
 func filterItems(arr []ds.Item, f string) []ds.Item {
 	switch f {
@@ -45,48 +126,4 @@ func filterItems(arr []ds.Item, f string) []ds.Item {
 		})
 	}
 	return arr
-}
-
-func (h *Handler) GetItemById(ctx *gin.Context) {
-	jsonData, err := ctx.GetRawData()
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
-		return
-	}
-	id := struct {
-		Id uint64 `json:"id"`
-	}{}
-	err = json.Unmarshal(jsonData, &id)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
-		return
-	}
-	item, err := h.Repository.GetItemByID(int(id.Id))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
-		return
-	}
-	ctx.JSON(http.StatusOK, item)
-}
-
-func (h *Handler) DeleteItem(ctx *gin.Context) {
-	jsonData, err := ctx.GetRawData()
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
-		return
-	}
-	id := struct {
-		Id uint64 `json:"id"`
-	}{}
-	err = json.Unmarshal(jsonData, &id)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
-		return
-	}
-	err = h.Repository.DeleteItem(int(id.Id))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
-		return
-	}
-	ctx.JSON(http.StatusOK, gin.H{"error: ": err.Error})
 }

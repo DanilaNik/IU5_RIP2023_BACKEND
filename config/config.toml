@@ -1,4 +1,4 @@
-ServiceHost = "localhost"
+ServiceHost = "172.20.10.6"
 ServicePort = 7070
 
 [minio]

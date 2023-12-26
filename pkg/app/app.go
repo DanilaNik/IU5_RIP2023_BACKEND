@@ -47,10 +47,11 @@ func (a *Application) Run() {
 		})
 	})
 
-	registerStatic(a.Router)
+	//a.Router.POST("/s3/upload", a.Handler.LoadS3)
+
 	a.Router.GET("/items", a.Handler.GetItems)
-	a.Router.GET("/item/:id", a.Handler.GetItemById)
-	a.Router.POST("/item/delete/:id", a.Handler.DeleteItem)
+	a.Router.GET("/items/:id", a.Handler.GetItemById)
+	//a.Router.POST("/item/delete", a.Handler.DeleteItem)
 	a.Router.GET("/users", a.Handler.GetUsers)
 	a.Router.GET("/user", a.Handler.GetUserById)
 	a.Router.POST("/user/delete", a.Handler.DeleteUser)
@@ -59,7 +60,8 @@ func (a *Application) Run() {
 	a.Router.POST("/order/delete", a.Handler.DeleteRequest)
 
 	// admin and moderator handlers
-	a.Router.GET("/user/orders", a.Handler.GetUserRequests)
+	a.Router.GET("/user/orders", a.RoleMiddleware(role.Admin, role.Moderator), a.Handler.GetUserRequests)
+	//a.Router.POST("item", a.RoleMiddleware(role.Admin, role.Moderator), a.Handler.CreateItem)
 
 	//Authorization
 	a.Router.POST("/register", a.Handler.Registr)
@@ -72,11 +74,4 @@ func (a *Application) Run() {
 		a.Logger.Fatal(err)
 	}
 	a.Logger.Error("Server down")
-}
-
-func registerStatic(router *gin.Engine) {
-	router.LoadHTMLGlob("templates/html/*")
-	router.Static("/templates", "./templates")
-	router.Static("/css", "./templates")
-	router.Static("/image", "./resources")
 }
