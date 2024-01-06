@@ -2,10 +2,14 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"os"
+	"strconv"
 
 	"github.com/DanilaNik/IU5_RIP2023/internal/httpmodels"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
 )
 
 // @Summary Register
@@ -18,7 +22,7 @@ import (
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /register [post]
-func (h *Handler) Registr(ctx *gin.Context) {
+func (h *Handler) SignUp(ctx *gin.Context) {
 	var userJSON httpmodels.TestingRegisterRequest
 	if err := ctx.ShouldBindJSON(&userJSON); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -28,6 +32,7 @@ func (h *Handler) Registr(ctx *gin.Context) {
 	user, err := h.AuthorizationService.RegisterUser(userJSON)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
 	ctx.JSON(http.StatusCreated, user)
@@ -54,9 +59,56 @@ func (h *Handler) Login(ctx *gin.Context) {
 	token, err := h.AuthorizationService.LoginUser(userJSON)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
+	ctx.SetSameSite(http.SameSiteLaxMode)
+	ctx.SetCookie("auth", token.Token, 3600*24*30, "", "", false, true)
+
 	ctx.JSON(http.StatusCreated, gin.H{"token": token})
+}
+
+func (h *Handler) getUserRole(ctx *gin.Context) (string, string, error) {
+	cookie, err := ctx.Cookie("auth")
+	if err != nil {
+		return "", "", err
+	}
+	token, err := jwt.Parse(cookie, func(t *jwt.Token) (interface{}, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("неверный метод подписи")
+		}
+		return []byte(os.Getenv("JWT_KEY")), nil
+	})
+
+	id := ""
+	role := ""
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		id = strconv.Itoa(int(claims["userID"].(float64)))
+		role = claims["role"].(string)
+	} else {
+		return "", "", err
+	}
+
+	return id, role, nil
+}
+
+func (h *Handler) Logout(ctx *gin.Context) {
+	id, _, err := h.getUserRole(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	err = h.AuthorizationService.LogoutUser(id)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "cant delete from logout",
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{})
 }
 
 func (h *Handler) GetUsers(ctx *gin.Context) {

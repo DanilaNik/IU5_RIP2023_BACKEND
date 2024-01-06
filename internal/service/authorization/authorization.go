@@ -2,6 +2,7 @@ package authorization
 
 import (
 	"github.com/pkg/errors"
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/DanilaNik/IU5_RIP2023/internal/ds"
 	"github.com/DanilaNik/IU5_RIP2023/internal/httpmodels"
@@ -28,11 +29,16 @@ func (a *AuthorizationService) RegisterUser(user httpmodels.TestingRegisterReque
 		return httpmodels.TestingRegisterResponse{}, errors.New("пользователь уже сущетсвует")
 	}
 
+	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
+	if err != nil {
+		return httpmodels.TestingRegisterResponse{}, errors.New("failed to hash password")
+	}
+
 	err = a.Repository.CreateUser(ds.User{
 		ID:       user.ID,
 		UserName: user.UserName,
 		Login:    user.Login,
-		Password: user.Password,
+		Password: string(hash),
 		Email:    user.Email,
 		Role:     user.Role,
 		ImageURL: user.ImageURL,
@@ -58,8 +64,9 @@ func (a *AuthorizationService) LoginUser(user httpmodels.TestingLoginRequest) (h
 		return httpmodels.TestingLoginResponse{Token: ""}, err
 	}
 
-	if candidate.Password != user.Password {
-		return httpmodels.TestingLoginResponse{Token: ""}, errors.New("неверный пароль")
+	err = bcrypt.CompareHashAndPassword([]byte(candidate.Password), []byte(user.Password))
+	if err != nil {
+		return httpmodels.TestingLoginResponse{Token: ""}, errors.New("неправильный пароль или email")
 	}
 
 	token, err := pkg.GenerateJWTToken(uint(candidate.ID), candidate.Role)
@@ -74,4 +81,12 @@ func (a *AuthorizationService) LoginUser(user httpmodels.TestingLoginRequest) (h
 	}
 
 	return httpmodels.TestingLoginResponse{Token: token}, nil
+}
+
+func (a *AuthorizationService) LogoutUser(id string) error {
+	err := a.Repository.DeleteJWTToken(id)
+	if err != nil {
+		return err
+	}
+	return nil
 }

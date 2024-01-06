@@ -58,6 +58,17 @@ func (r *Repository) SaveJWTToken(id uint, token string) error {
 	idStr := strconv.FormatUint(uint64(id), 10)
 
 	err := r.rd.Set(idStr, token, expiration).Err()
+	r.rd.Del()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *Repository) DeleteJWTToken(id string) error {
+
+	err := r.rd.Del(id).Err()
 	if err != nil {
 		return err
 	}

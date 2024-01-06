@@ -39,33 +39,39 @@ func (a *Application) Run() {
 	docs.SwaggerInfo.Host = "localhost:7070"
 	docs.SwaggerInfo.BasePath = "/"
 
-	a.Router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
 	a.Router.GET("/ping", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{
 			"message": "pong",
 		})
 	})
 
-	//a.Router.POST("/s3/upload", a.Handler.LoadS3)
+	a.Router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	a.Router.POST("/items/image", a.Handler.LoadS3)
 
 	a.Router.GET("/items", a.Handler.GetItems)
 	a.Router.GET("/items/:id", a.Handler.GetItemById)
-	//a.Router.POST("/item/delete", a.Handler.DeleteItem)
-	a.Router.GET("/users", a.Handler.GetUsers)
-	a.Router.GET("/user", a.Handler.GetUserById)
-	a.Router.POST("/user/delete", a.Handler.DeleteUser)
+	a.Router.POST("/items/post", a.Handler.PostItem)
+	a.Router.DELETE("/items/:id/delete", a.Handler.DeleteItem)
+	a.Router.PUT("/items/:id/put", a.Handler.PutItem)
+	a.Router.POST("/items/:id/post", a.Handler.PostItemToOrder)
+
+	// a.Router.GET("/users", a.Handler.GetUsers)
+	// a.Router.GET("/user", a.Handler.GetUserById)
+	// a.Router.POST("/user/delete", a.Handler.DeleteUser)
+
 	a.Router.GET("/orders", a.Handler.GetRequests)
 	a.Router.GET("/order", a.Handler.GetRequestById)
 	a.Router.POST("/order/delete", a.Handler.DeleteRequest)
 
 	// admin and moderator handlers
-	a.Router.GET("/user/orders", a.RoleMiddleware(role.Admin, role.Moderator), a.Handler.GetUserRequests)
-	//a.Router.POST("item", a.RoleMiddleware(role.Admin, role.Moderator), a.Handler.CreateItem)
+	// a.Router.GET("/user/orders", a.RoleMiddleware(role.Admin, role.Moderator), a.Handler.GetUserRequests)
+	// a.Router.POST("item", a.RoleMiddleware(role.Admin, role.Moderator), a.Handler.CreateItem)
 
 	//Authorization
-	a.Router.POST("/register", a.Handler.Registr)
+	a.Router.POST("/signup", a.Handler.SignUp)
 	a.Router.POST("/login", a.Handler.Login)
+	a.Router.POST("/logout", a.Handler.Logout)
 
 	a.Router.GET("/protected", a.RoleMiddleware(role.Admin, role.Moderator), a.Handler.ProtectedTest)
 
@@ -74,4 +80,20 @@ func (a *Application) Run() {
 		a.Logger.Fatal(err)
 	}
 	a.Logger.Error("Server down")
+}
+
+func CORSMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Credentials", "true")
+		c.Header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Header("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE, PATCH")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(http.StatusNoContent)
+			return
+		}
+
+		c.Next()
+	}
 }

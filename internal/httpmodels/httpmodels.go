@@ -52,3 +52,23 @@ type TestingGetItemByIDResponse struct {
 type TestingDeleteItemRequest struct {
 	ID int64 `json:"id"`
 }
+
+type TestingPostItemRequest struct {
+	Item Item `json:"item"`
+}
+
+type TestingPostItemResponse struct {
+	Item Item `json:"item"`
+}
+
+type TestingPutItemRequset struct {
+	Item Item `json:"item"`
+}
+
+type TestingGetUserByIDRequest struct {
+	ID int64 `json:"id"`
+}
+
+type TestingGetUserByIDResponse struct {
+	User User `json:"user"`
+}
