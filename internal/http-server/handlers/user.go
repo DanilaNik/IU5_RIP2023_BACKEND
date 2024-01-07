@@ -111,6 +111,12 @@ func (h *Handler) Logout(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{})
 }
 
+func (h *Handler) isLogout(id string) bool {
+	err := h.AuthorizationService.IsLogout(id)
+
+	return err != nil
+}
+
 func (h *Handler) GetUsers(ctx *gin.Context) {
 	users, err := h.Repository.GetUsers()
 	if err != nil {
@@ -162,6 +168,37 @@ func (h *Handler) DeleteUser(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"error: ": err.Error})
+}
+
+func (h *Handler) AdminAuth(ctx *gin.Context) {
+	id, role, err := h.getUserRole(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+	}
+	if !h.isLogout(id) {
+		ctx.AbortWithStatus(http.StatusForbidden)
+	}
+	if role != "Admin" {
+		ctx.AbortWithStatus(http.StatusForbidden)
+
+	}
+	ctx.Next()
+}
+
+func (h *Handler) UserAuth(ctx *gin.Context) {
+	id, _, err := h.getUserRole(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	if !h.isLogout(id) {
+		ctx.AbortWithStatus(http.StatusForbidden)
+	}
+	ctx.Next()
 }
 
 func (h *Handler) GetUserRequests(ctx *gin.Context) {

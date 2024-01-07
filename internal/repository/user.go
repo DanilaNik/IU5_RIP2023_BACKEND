@@ -67,8 +67,16 @@ func (r *Repository) SaveJWTToken(id uint, token string) error {
 }
 
 func (r *Repository) DeleteJWTToken(id string) error {
-
 	err := r.rd.Del(id).Err()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *Repository) GetJWTToken(id string) error {
+	_, err := r.rd.Get(id).Result()
 	if err != nil {
 		return err
 	}

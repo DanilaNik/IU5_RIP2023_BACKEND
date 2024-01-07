@@ -32,3 +32,30 @@ func (r *Repository) UpdateRequestStatus(id int, status string) error {
 	}
 	return nil
 }
+
+func (r *Repository) GetRequestByIDAndStatus(id int, status string) (*ds.Request, error) {
+	request := &ds.Request{}
+	err := r.db.Table("requests").Where("creator_id = ? AND status = ?", id, status).First(&request).Error
+	if err != nil {
+		return nil, err
+	}
+	return request, nil
+}
+
+func (r *Repository) PostRequest(request ds.Request) error {
+	result := r.db.Create(&request)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+func (r *Repository) PostRequestItem(requestItem ds.ItemsRequest) error {
+	result := r.db.Create(&requestItem)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}

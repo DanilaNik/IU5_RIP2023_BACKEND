@@ -90,3 +90,11 @@ func (a *AuthorizationService) LogoutUser(id string) error {
 	}
 	return nil
 }
+
+func (a *AuthorizationService) IsLogout(id string) error {
+	err := a.Repository.GetJWTToken(id)
+	if err != nil {
+		return err
+	}
+	return nil
+}

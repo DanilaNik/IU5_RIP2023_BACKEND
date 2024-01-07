@@ -10,6 +10,8 @@ import (
 	"github.com/DanilaNik/IU5_RIP2023/internal/repository"
 	auth "github.com/DanilaNik/IU5_RIP2023/internal/service/authorization"
 	itemservice "github.com/DanilaNik/IU5_RIP2023/internal/service/itemService"
+	requestitemservice "github.com/DanilaNik/IU5_RIP2023/internal/service/requestItemService"
+	requestservice "github.com/DanilaNik/IU5_RIP2023/internal/service/requestService"
 
 	"github.com/DanilaNik/IU5_RIP2023/pkg/app"
 	"github.com/gin-gonic/gin"
@@ -35,8 +37,10 @@ func main() {
 	}
 	auth := auth.NewAuthorizationService(db)
 	item := itemservice.NewItemService(db, cfg)
+	req := requestservice.NewRequestService(db, cfg)
+	reqItem := requestitemservice.NewRequestItemService(db, cfg)
 	minoCl := minio.NewMinioClient(cfg)
-	handler := handlers.NewHandler(logger, db, auth, item, minoCl)
+	handler := handlers.NewHandler(logger, db, auth, item, req, reqItem, minoCl)
 	application := app.New(cfg, router, logger, handler)
 	application.Run()
 }

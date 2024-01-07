@@ -106,6 +106,10 @@ func (i *ItemService) PutItem(ctx context.Context, req *httpmodels.TestingPutIte
 	return nil
 }
 
+func (i *ItemService) PostItemToRequest(ctx context.Context, req *httpmodels.TestingGetItemByIDRequest) {
+
+}
+
 func convertToResponse(items []*ds.Item) []*httpmodels.Item {
 	result := make([]*httpmodels.Item, 0)
 	for _, item := range items {

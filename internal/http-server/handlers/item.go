@@ -73,13 +73,20 @@ func (h *Handler) LoadS3(ctx *gin.Context) {
 // @Failure 500 {object} map[string]string
 // @Router /items [get]
 func (h *Handler) GetItems(ctx *gin.Context) {
+	userId, _, _ := h.getUserRole(ctx)
 	searchText := ctx.Query("search")
-
 	resp, err := h.ItemService.GetItems(ctx, searchText)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
 		return
 	}
+	id, err := strconv.Atoi(userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+		return
+	}
+	dataRequest, err := h.RequestService.GetDraftRequestByIdAndStatus(ctx, id, "draft")
+	resp.OrderID = dataRequest.Request.ID
 	ctx.JSON(http.StatusOK, resp)
 }
 
@@ -129,14 +136,13 @@ func (h *Handler) PostItem(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"error: ": err.Error})
+	ctx.JSON(http.StatusOK, item)
 }
 
 func (h *Handler) DeleteItem(ctx *gin.Context) {
-	req := httpmodels.TestingDeleteItemRequest{}
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+	itemId, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
+	req := httpmodels.TestingDeleteItemRequest{
+		ID: itemId,
 	}
 
 	err := h.ItemService.DeleteItem(ctx, &req)
@@ -170,11 +176,67 @@ func (h *Handler) PutItem(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"error: ": err.Error})
+	ctx.JSON(http.StatusOK, gin.H{})
 }
 
-func (h *Handler) PostItemToOrder(ctx *gin.Context) {
+func (h *Handler) PostItemToRequest(ctx *gin.Context) {
+	userId, _, err := h.getUserRole(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 
+	itemId, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
+	request := &httpmodels.Request{}
+
+	id, _ := strconv.Atoi(userId)
+	// req := httpmodels.TestingPostItemToRequestRequest{
+	// 	UserID: int64(id),
+	// 	Status: "draft",
+	// }
+
+	dataRequest, err := h.RequestService.GetDraftRequestByIdAndStatus(ctx, id, "draft")
+	if err != nil {
+		request.CreatorID = uint64(id)
+		request.Status = "draft"
+		currentTime := time.Now()
+		req1 := &httpmodels.TestingPostRequestRequest{
+			Request: httpmodels.Request{
+				CreatorID:    request.CreatorID,
+				Status:       request.Status,
+				CreationDate: currentTime,
+			},
+		}
+		err1 := h.RequestService.PostRequest(ctx, req1)
+		if err1 != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err1})
+			return
+		}
+	} else {
+		request = &dataRequest.Request
+	}
+
+	req2 := &httpmodels.TestingPostRequestItemRequest{
+		RequestItem: httpmodels.RequestItem{
+			ItemID:    uint64(itemId),
+			RequestID: request.ID,
+		},
+	}
+	err2 := h.RequestItemService.PostRequestItem(ctx, req2)
+	if err2 != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err2})
+		return
+	}
+
+	dataRequest, err = h.RequestService.GetDraftRequestByIdAndStatus(ctx, id, "draft")
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dataRequest)
 }
 
 func filterItems(arr []ds.Item, f string) []ds.Item {

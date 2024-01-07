@@ -5,6 +5,8 @@ import (
 	"github.com/DanilaNik/IU5_RIP2023/internal/repository"
 	auth "github.com/DanilaNik/IU5_RIP2023/internal/service/authorization"
 	itemservice "github.com/DanilaNik/IU5_RIP2023/internal/service/itemService"
+	requestitemservice "github.com/DanilaNik/IU5_RIP2023/internal/service/requestItemService"
+	requestservice "github.com/DanilaNik/IU5_RIP2023/internal/service/requestService"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
@@ -14,15 +16,18 @@ type Handler struct {
 	Repository           *repository.Repository
 	AuthorizationService *auth.AuthorizationService
 	ItemService          *itemservice.ItemService
+	RequestService       *requestservice.RequestService
+	RequestItemService   *requestitemservice.RequestItemService
 	Minio                *minio.MinioClient
 }
 
-func NewHandler(log *logrus.Logger, r *repository.Repository, a *auth.AuthorizationService, i *itemservice.ItemService, m *minio.MinioClient) *Handler {
+func NewHandler(log *logrus.Logger, r *repository.Repository, a *auth.AuthorizationService, i *itemservice.ItemService, req *requestservice.RequestService, reqItem *requestitemservice.RequestItemService, m *minio.MinioClient) *Handler {
 	return &Handler{
 		Logger:               log,
 		Repository:           r,
 		AuthorizationService: a,
 		ItemService:          i,
+		RequestService:       req,
 		Minio:                m,
 	}
 }

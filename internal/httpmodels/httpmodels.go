@@ -38,7 +38,8 @@ type TestingGetItemsRequest struct {
 }
 
 type TestingGetItemsResponse struct {
-	Items []*Item `json:"items"`
+	Items   []*Item `json:"items"`
+	OrderID uint64  `json:"oderdID"`
 }
 
 type TestingGetItemByIDRequest struct {
@@ -71,4 +72,34 @@ type TestingGetUserByIDRequest struct {
 
 type TestingGetUserByIDResponse struct {
 	User User `json:"user"`
+}
+
+type TestingGetDraftRequestByIDRequest struct {
+	ID     int64  `json:"id"`
+	Status string `json:"status"`
+}
+
+type TestingGetDraftRequestByIDResponse struct {
+	Request Request `json:"request"`
+}
+
+// type TestingPostItemToRequestRequest struct {
+// 	UserID int64  `json:"userID"`
+// 	Status string `json:"status"`
+// }
+
+type TestingPostItemToRequestResponse struct {
+	RequestItem RequestItem `json:"requestItem"`
+}
+
+type TestingPostRequestRequest struct {
+	Request Request `json:"request"`
+}
+
+type TestingPostRequestResponse struct {
+	Request Request `json:"request"`
+}
+
+type TestingPostRequestItemRequest struct {
+	RequestItem RequestItem `json:"requestItem"`
 }
