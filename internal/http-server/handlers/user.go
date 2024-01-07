@@ -65,7 +65,7 @@ func (h *Handler) Login(ctx *gin.Context) {
 	ctx.SetSameSite(http.SameSiteLaxMode)
 	ctx.SetCookie("auth", token.Token, 3600*24*30, "", "", false, true)
 
-	ctx.JSON(http.StatusCreated, gin.H{"token": token})
+	ctx.JSON(http.StatusOK, gin.H{"token": token})
 }
 
 func (h *Handler) getUserRole(ctx *gin.Context) (string, string, error) {
@@ -177,7 +177,7 @@ func (h *Handler) AdminAuth(ctx *gin.Context) {
 			"error": err.Error(),
 		})
 	}
-	if !h.isLogout(id) {
+	if h.isLogout(id) {
 		ctx.AbortWithStatus(http.StatusForbidden)
 	}
 	if role != "Admin" {
@@ -195,7 +195,7 @@ func (h *Handler) UserAuth(ctx *gin.Context) {
 		})
 		return
 	}
-	if !h.isLogout(id) {
+	if h.isLogout(id) {
 		ctx.AbortWithStatus(http.StatusForbidden)
 	}
 	ctx.Next()

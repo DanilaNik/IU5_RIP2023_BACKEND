@@ -8,14 +8,56 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (h *Handler) GetRequests(ctx *gin.Context) {
-	users, err := h.Repository.GetRequests()
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
-		return
-	}
-	ctx.JSON(http.StatusOK, users)
-}
+// func (h *Handler) GetRequests(ctx *gin.Context) {
+// 	id, role, err := h.getUserRole(ctx)
+// 	if err != nil {
+// 		ctx.JSON(http.StatusForbidden, gin.H{
+// 			"error": err.Error(),
+// 		})
+// 		return
+// 	}
+
+// 	if role == "Admin" {
+// 		adminOrders := make([]models.Order, 0)
+// 		max := c.Query("max_date")
+// 		min := c.Query("min_date")
+// 		status := c.Query("status")
+// 		tx := s.db.DB.Where("deleted_at IS NULL")
+// 		if max != "" {
+// 			date, _ := time.Parse("2006-01-02", max)
+// 			tx = tx.Where("created_at::date <?", date)
+// 		}
+// 		if min != "" {
+// 			date, _ := time.Parse("2006-01-02", min)
+// 			tx = tx.Where("created_at::date  >=?", date)
+// 		}
+// 		if status != "all" {
+// 			tx = tx.Where("status = ?", status)
+// 		} else {
+// 			tx = tx.Where("status != ?", "new")
+// 		}
+
+// 		tx = tx.Find(&adminOrders)
+// 		if tx.Error != nil {
+// 			c.JSON(http.StatusBadRequest, gin.H{"error: ": tx.Error.Error()})
+// 			return
+// 		}
+// 		for i := range adminOrders {
+// 			userForEmail := &models.User{}
+// 			s.db.DB.Where("deleted_at IS NULL").Where("id = ?", adminOrders[i].UserId).Find(&userForEmail)
+// 			adminOrders[i].Email = userForEmail.Email
+// 		}
+
+// 		c.JSON(http.StatusOK, adminOrders)
+// 		return
+// 	}
+// 	users, err := h.Repository.GetRequests()
+// 	if err != nil {
+// 		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+// 		return
+// 	}
+// 	ctx.JSON(http.StatusOK, users)
+// }
 
 func (h *Handler) GetRequestById(ctx *gin.Context) {
 	idValue := ctx.Param("id")

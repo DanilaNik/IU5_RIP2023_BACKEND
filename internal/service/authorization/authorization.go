@@ -66,7 +66,7 @@ func (a *AuthorizationService) LoginUser(user httpmodels.TestingLoginRequest) (h
 
 	err = bcrypt.CompareHashAndPassword([]byte(candidate.Password), []byte(user.Password))
 	if err != nil {
-		return httpmodels.TestingLoginResponse{Token: ""}, errors.New("неправильный пароль или email")
+		return httpmodels.TestingLoginResponse{Token: ""}, errors.New("неправильный пароль или логин")
 	}
 
 	token, err := pkg.GenerateJWTToken(uint(candidate.ID), candidate.Role)

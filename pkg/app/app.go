@@ -60,13 +60,13 @@ func (a *Application) Run() {
 	// a.Router.GET("/user", a.Handler.GetUserById)
 	// a.Router.POST("/user/delete", a.Handler.DeleteUser)
 
-	a.Router.GET("/orders", a.Handler.GetRequests)
-	a.Router.GET("/orders/:id", a.Handler.GetRequestById)
-	a.Router.PUT("/orders/:id/approve", a.Handler.PutOrderStatus)
-	a.Router.PUT("/orders/make", a.Handler.ConfirmOrder)
-	a.Router.DELETE("/order/delete", a.Handler.DeleteRequest)
-	a.Router.DELETE("orders/items/:id", a.Handler.DeleteItemFromOrder)
-	a.Router.PUT("orders/:id/comment", a.Handler.AddItemComment)
+	// a.Router.GET("/orders", a.Handler.GetRequests)
+	// a.Router.GET("/orders/:id", a.Handler.GetRequestById)
+	// a.Router.PUT("/orders/:id/approve", a.Handler.PutOrderStatus)
+	// a.Router.PUT("/orders/make", a.Handler.ConfirmOrder)
+	// a.Router.DELETE("/order/delete", a.Handler.DeleteRequest)
+	// a.Router.DELETE("orders/items/:id", a.Handler.DeleteItemFromOrder)
+	// a.Router.PUT("orders/:id/comment", a.Handler.AddItemComment)
 
 	// admin and moderator handlers
 	// a.Router.GET("/user/orders", a.RoleMiddleware(role.Admin, role.Moderator), a.Handler.GetUserRequests)
@@ -76,6 +76,13 @@ func (a *Application) Run() {
 	a.Router.POST("/signup", a.Handler.SignUp)
 	a.Router.POST("/login", a.Handler.Login)
 	a.Router.POST("/logout", a.Handler.Logout)
+
+	a.Router.Use(a.Handler.UserAuth).POST("/validate1", func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, gin.H{})
+	})
+	a.Router.Use(a.Handler.AdminAuth).POST("/validate_admin", func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, gin.H{})
+	})
 
 	a.Router.GET("/protected", a.RoleMiddleware(role.Admin, role.Moderator), a.Handler.ProtectedTest)
 

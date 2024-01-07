@@ -6,11 +6,9 @@ import (
 	"net/http"
 	"net/url"
 	"path/filepath"
-	"sort"
 	"strconv"
 	"time"
 
-	"github.com/DanilaNik/IU5_RIP2023/internal/ds"
 	"github.com/DanilaNik/IU5_RIP2023/internal/httpmodels"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -73,19 +71,46 @@ func (h *Handler) LoadS3(ctx *gin.Context) {
 // @Failure 500 {object} map[string]string
 // @Router /items [get]
 func (h *Handler) GetItems(ctx *gin.Context) {
-	userId, _, _ := h.getUserRole(ctx)
+	userId, _, userErr := h.getUserRole(ctx)
 	searchText := ctx.Query("search")
 	resp, err := h.ItemService.GetItems(ctx, searchText)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
 		return
 	}
+	if userErr != nil {
+		ctx.JSON(http.StatusOK, resp)
+		return
+	}
+
 	id, err := strconv.Atoi(userId)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
 		return
 	}
+
 	dataRequest, err := h.RequestService.GetDraftRequestByIdAndStatus(ctx, id, "draft")
+	if err != nil {
+		currentTime := time.Now()
+		req1 := &httpmodels.TestingPostRequestRequest{
+			Request: httpmodels.Request{
+				CreatorID:    uint64(id),
+				Status:       "draft",
+				CreationDate: currentTime,
+			},
+		}
+		err1 := h.RequestService.PostRequest(ctx, req1)
+		if err1 != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err1})
+			return
+		}
+		dataRequest, err1 = h.RequestService.GetDraftRequestByIdAndStatus(ctx, id, "draft")
+		if err1 != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err1})
+			return
+		}
+	}
+
 	resp.OrderID = dataRequest.Request.ID
 	ctx.JSON(http.StatusOK, resp)
 }
@@ -189,7 +214,6 @@ func (h *Handler) PostItemToRequest(ctx *gin.Context) {
 	}
 
 	itemId, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
-	request := &httpmodels.Request{}
 
 	id, _ := strconv.Atoi(userId)
 	// req := httpmodels.TestingPostItemToRequestRequest{
@@ -199,13 +223,11 @@ func (h *Handler) PostItemToRequest(ctx *gin.Context) {
 
 	dataRequest, err := h.RequestService.GetDraftRequestByIdAndStatus(ctx, id, "draft")
 	if err != nil {
-		request.CreatorID = uint64(id)
-		request.Status = "draft"
 		currentTime := time.Now()
 		req1 := &httpmodels.TestingPostRequestRequest{
 			Request: httpmodels.Request{
-				CreatorID:    request.CreatorID,
-				Status:       request.Status,
+				CreatorID:    uint64(id),
+				Status:       "draft",
 				CreationDate: currentTime,
 			},
 		}
@@ -214,14 +236,17 @@ func (h *Handler) PostItemToRequest(ctx *gin.Context) {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err1})
 			return
 		}
-	} else {
-		request = &dataRequest.Request
+		dataRequest, err1 = h.RequestService.GetDraftRequestByIdAndStatus(ctx, id, "draft")
+		if err1 != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err1})
+			return
+		}
 	}
 
 	req2 := &httpmodels.TestingPostRequestItemRequest{
 		RequestItem: httpmodels.RequestItem{
 			ItemID:    uint64(itemId),
-			RequestID: request.ID,
+			RequestID: dataRequest.Request.ID,
 		},
 	}
 	err2 := h.RequestItemService.PostRequestItem(ctx, req2)
@@ -230,25 +255,19 @@ func (h *Handler) PostItemToRequest(ctx *gin.Context) {
 		return
 	}
 
-	dataRequest, err = h.RequestService.GetDraftRequestByIdAndStatus(ctx, id, "draft")
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
-		return
-	}
-
 	ctx.JSON(http.StatusOK, dataRequest)
 }
 
-func filterItems(arr []ds.Item, f string) []ds.Item {
-	switch f {
-	case "min":
-		sort.SliceStable(arr, func(i, j int) bool {
-			return arr[i].Quantity < arr[j].Quantity
-		})
-	case "max":
-		sort.SliceStable(arr, func(i, j int) bool {
-			return arr[i].Quantity > arr[j].Quantity
-		})
-	}
-	return arr
-}
+// func filterItems(arr []ds.Item, f string) []ds.Item {
+// 	switch f {
+// 	case "min":
+// 		sort.SliceStable(arr, func(i, j int) bool {
+// 			return arr[i].Quantity < arr[j].Quantity
+// 		})
+// 	case "max":
+// 		sort.SliceStable(arr, func(i, j int) bool {
+// 			return arr[i].Quantity > arr[j].Quantity
+// 		})
+// 	}
+// 	return arr
+// }
