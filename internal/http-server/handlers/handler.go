@@ -28,6 +28,7 @@ func NewHandler(log *logrus.Logger, r *repository.Repository, a *auth.Authorizat
 		AuthorizationService: a,
 		ItemService:          i,
 		RequestService:       req,
+		RequestItemService:   reqItem,
 		Minio:                m,
 	}
 }

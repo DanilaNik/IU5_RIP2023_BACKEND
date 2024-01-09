@@ -58,7 +58,7 @@ func (r *RequestService) PostRequest(ctx context.Context, req *httpmodels.Testin
 }
 
 func (r *RequestService) GetRequestsForAdminWithFilters(ctx context.Context, req *httpmodels.TestingGetRequestsForAdminWithFiltersRequest) (*httpmodels.TestingGetRequestsForAdminWithFiltersResponse, error) {
-	requests, err := r.Repository.GetRequestsForAdminWithFilters(req.MinData, req.MaxData, req.Status, req.CreatorID)
+	requests, err := r.Repository.GetRequestsForAdminWithFilters(req.MinData, req.MaxData, req.Status)
 	if err != nil {
 		return nil, errors.Wrap(err, "get requests with filters")
 	}

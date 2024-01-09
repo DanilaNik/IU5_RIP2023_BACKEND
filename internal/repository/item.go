@@ -7,7 +7,7 @@ import (
 func (r *Repository) GetItems(search string, host string) ([]*ds.Item, error) {
 	var items []*ds.Item
 	if search != "" {
-		res := r.db.Where("status = $1", "enabled").Where("Name  ILIKE $2", "%"+search+"%").Find(&items)
+		res := r.db.Where("deleted_at IS NULL").Where("status = $1", "enabled").Where("Name  ILIKE $2", "%"+search+"%").Find(&items)
 		for _, item := range items {
 			url := item.ImageURL
 			item.ImageURL = "http://" + host + url

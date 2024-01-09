@@ -37,10 +37,9 @@ func (h *Handler) GetRequests(ctx *gin.Context) {
 		}
 
 		req := httpmodels.TestingGetRequestsForAdminWithFiltersRequest{
-			MinData:   minTime,
-			MaxData:   maxTime,
-			Status:    status,
-			CreatorID: userId,
+			MinData: minTime,
+			MaxData: maxTime,
+			Status:  status,
 		}
 		data, err := h.RequestService.GetRequestsForAdminWithFilters(ctx, &req)
 		if err != nil {

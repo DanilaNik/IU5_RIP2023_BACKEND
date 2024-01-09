@@ -42,24 +42,22 @@ func (r *RequestItemService) GetRequestItems(ctx context.Context, req *httpmodel
 		return nil, errors.Wrap(err, "get request items")
 	}
 
-	covertItems := convertItemsToResponse(items)
-	itemsMap := make(map[uint64]httpmodels.ItemInRequest)
-	res := make([]*httpmodels.ItemInRequest, 0)
+	convertItems := convertItemsToResponse(items)
+	itemsMap := make(map[uint64]*httpmodels.ItemInRequest)
 
-	for _, item := range covertItems {
-		if value, ok := itemsMap[item.ID]; ok {
-			value.QuantityInRequest += 1
-			itemsMap[item.ID] = value
-		} else {
-			itemsMap[item.ID] = httpmodels.ItemInRequest{
+	for _, item := range convertItems {
+		if _, ok := itemsMap[item.ID]; !ok {
+			itemsMap[item.ID] = &httpmodels.ItemInRequest{
 				Item:              *item,
-				QuantityInRequest: 1,
+				QuantityInRequest: 0,
 			}
 		}
+		itemsMap[item.ID].QuantityInRequest += 1
 	}
 
+	res := make([]*httpmodels.ItemInRequest, 0, len(itemsMap))
 	for _, v := range itemsMap {
-		res = append(res, &v)
+		res = append(res, v)
 	}
 
 	resp := &httpmodels.TestingGetRequestItemsResponse{
@@ -75,25 +73,26 @@ func (r *RequestItemService) DeleteDraftRequestItem(ctx context.Context, req *ht
 		return nil, errors.Wrap(err, "get request items")
 	}
 
-	covertItems := convertItemsToResponse(items)
-	itemsMap := make(map[uint64]httpmodels.ItemInRequest)
-	res := make([]*httpmodels.ItemInRequest, 0)
+	convertItems := convertItemsToResponse(items)
+	itemsMap := make(map[uint64]*httpmodels.ItemInRequest)
 	notDeleteFlag := true
-
-	for _, item := range covertItems {
+	for _, item := range convertItems {
 		if item.ID == uint64(req.ItemID) && notDeleteFlag {
 			notDeleteFlag = false
 			continue
 		}
-		if value, ok := itemsMap[item.ID]; ok {
-			value.QuantityInRequest += 1
-			itemsMap[item.ID] = value
-		} else {
-			itemsMap[item.ID] = httpmodels.ItemInRequest{
+		if _, ok := itemsMap[item.ID]; !ok {
+			itemsMap[item.ID] = &httpmodels.ItemInRequest{
 				Item:              *item,
-				QuantityInRequest: 1,
+				QuantityInRequest: 0,
 			}
 		}
+		itemsMap[item.ID].QuantityInRequest += 1
+	}
+
+	res := make([]*httpmodels.ItemInRequest, 0, len(itemsMap))
+	for _, v := range itemsMap {
+		res = append(res, v)
 	}
 
 	err = r.Repository.DeleteDraftRequestItem(req.RequestID, req.ItemID)

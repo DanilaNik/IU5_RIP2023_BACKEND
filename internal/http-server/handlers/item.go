@@ -198,7 +198,7 @@ func (h *Handler) DeleteItem(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"error: ": err.Error})
+	ctx.JSON(http.StatusOK, gin.H{})
 }
 
 func (h *Handler) PutItem(ctx *gin.Context) {

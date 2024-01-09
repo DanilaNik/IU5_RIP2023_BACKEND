@@ -107,10 +107,9 @@ type TestingPostRequestItemRequest struct {
 }
 
 type TestingGetRequestsForAdminWithFiltersRequest struct {
-	MinData   time.Time `json:"minData"`
-	MaxData   time.Time `json:"maxData"`
-	Status    string    `json:"status"`
-	CreatorID int64     `json:"creatorID"`
+	MinData time.Time `json:"minData"`
+	MaxData time.Time `json:"maxData"`
+	Status  string    `json:"status"`
 }
 
 type TestingGetRequestsForAdminWithFiltersResponse struct {

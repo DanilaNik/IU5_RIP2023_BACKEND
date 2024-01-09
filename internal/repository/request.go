@@ -30,7 +30,7 @@ func (r *Repository) UpdateRequestStatus(id int, status string) error {
 
 func (r *Repository) GetRequestByIDAndStatus(id int, status string) (*ds.Request, error) {
 	request := &ds.Request{}
-	err := r.db.Table("requests").Where("creator_id = ? AND status = ?", id, status).First(&request).Error
+	err := r.db.Table("requests").Where("deleted_at IS NULL").Where("creator_id = ? AND status = ?", id, status).First(&request).Error
 	if err != nil {
 		return nil, err
 	}
@@ -55,14 +55,14 @@ func (r *Repository) PostRequestItem(requestItem ds.ItemsRequest) error {
 	return nil
 }
 
-func (r *Repository) GetRequestsForAdminWithFilters(minData time.Time, maxData time.Time, status string, id int64) ([]*ds.Request, error) {
+func (r *Repository) GetRequestsForAdminWithFilters(minData time.Time, maxData time.Time, status string) ([]*ds.Request, error) {
 	var requests []*ds.Request
 	if status == "all" {
-		res := r.db.Where("deleted_at IS NULL").Where("creator_id = ?", id).Where("status != 'draft' AND status != 'deleted'").Where("created_at <= ?", maxData).Where("created_at >= ?", minData).Find(&requests)
+		res := r.db.Where("deleted_at IS NULL").Where("status != 'draft' AND status != 'deleted'").Where("created_at <= ?", maxData).Where("created_at >= ?", minData).Find(&requests)
 		return requests, res.Error
 	}
 
-	res := r.db.Where("deleted_at IS NULL").Where("creator_id = ?", id).Where("status != 'deleted' AND status == ?", status).Where("created_at <= ?", maxData).Where("created_at >= ?", minData).Find(&requests)
+	res := r.db.Where("deleted_at IS NULL").Where("status != 'deleted' AND status = ?", status).Where("created_at <= ?", maxData).Where("created_at >= ?", minData).Find(&requests)
 	return requests, res.Error
 }
 
@@ -76,7 +76,7 @@ func (r *Repository) GetRequests(id int64) ([]*ds.Request, error) {
 func (r *Repository) GetRequestItems(id int64) ([]*ds.Item, error) {
 	var items []*ds.Item
 
-	res := r.db.Table("items_requests").Select("items.*").Joins("JOIN items ON items.id = items_requests.item_id").Where("items_requests.request_id = ?", id).Scan(&items)
+	res := r.db.Table("items_requests").Select("items.*").Joins("JOIN items ON items.id = items_requests.item_id").Where("items_requests.deleted_at IS NULL").Where("items_requests.request_id = ?", id).Scan(&items)
 	return items, res.Error
 }
 
