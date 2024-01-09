@@ -91,12 +91,10 @@ func (h *Handler) GetItems(ctx *gin.Context) {
 
 	dataRequest, err := h.RequestService.GetDraftRequestByIdAndStatus(ctx, id, "draft")
 	if err != nil {
-		currentTime := time.Now()
 		req1 := &httpmodels.TestingPostRequestRequest{
 			Request: httpmodels.Request{
-				CreatorID:    uint64(id),
-				Status:       "draft",
-				CreationDate: currentTime,
+				CreatorID: uint64(id),
+				Status:    "draft",
 			},
 		}
 		err1 := h.RequestService.PostRequest(ctx, req1)
@@ -140,6 +138,18 @@ func (h *Handler) GetItemById(ctx *gin.Context) {
 }
 
 func (h *Handler) PostItem(ctx *gin.Context) {
+	_, role, err := h.getUserRole(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	if role != "Admin" {
+		ctx.JSON(http.StatusForbidden, gin.H{})
+		return
+	}
 	jsonData, err := ctx.GetRawData()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
@@ -165,12 +175,24 @@ func (h *Handler) PostItem(ctx *gin.Context) {
 }
 
 func (h *Handler) DeleteItem(ctx *gin.Context) {
+	_, role, err := h.getUserRole(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	if role != "Admin" {
+		ctx.JSON(http.StatusForbidden, gin.H{})
+		return
+	}
 	itemId, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	req := httpmodels.TestingDeleteItemRequest{
 		ID: itemId,
 	}
 
-	err := h.ItemService.DeleteItem(ctx, &req)
+	err = h.ItemService.DeleteItem(ctx, &req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
 		return
@@ -180,9 +202,22 @@ func (h *Handler) DeleteItem(ctx *gin.Context) {
 }
 
 func (h *Handler) PutItem(ctx *gin.Context) {
+	_, role, err := h.getUserRole(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	if role != "Admin" {
+		ctx.JSON(http.StatusForbidden, gin.H{})
+		return
+	}
+
 	jsonData, err := ctx.GetRawData()
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error: ": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 	}
 	itemId, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	item := httpmodels.Item{}
@@ -214,21 +249,14 @@ func (h *Handler) PostItemToRequest(ctx *gin.Context) {
 	}
 
 	itemId, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
-
 	id, _ := strconv.Atoi(userId)
-	// req := httpmodels.TestingPostItemToRequestRequest{
-	// 	UserID: int64(id),
-	// 	Status: "draft",
-	// }
 
 	dataRequest, err := h.RequestService.GetDraftRequestByIdAndStatus(ctx, id, "draft")
 	if err != nil {
-		currentTime := time.Now()
 		req1 := &httpmodels.TestingPostRequestRequest{
 			Request: httpmodels.Request{
-				CreatorID:    uint64(id),
-				Status:       "draft",
-				CreationDate: currentTime,
+				CreatorID: uint64(id),
+				Status:    "draft",
 			},
 		}
 		err1 := h.RequestService.PostRequest(ctx, req1)

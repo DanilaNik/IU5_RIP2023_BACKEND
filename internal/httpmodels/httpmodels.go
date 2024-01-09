@@ -1,6 +1,8 @@
 package httpmodels
 
 import (
+	"time"
+
 	"github.com/DanilaNik/IU5_RIP2023/internal/service/role"
 )
 
@@ -102,4 +104,57 @@ type TestingPostRequestResponse struct {
 
 type TestingPostRequestItemRequest struct {
 	RequestItem RequestItem `json:"requestItem"`
+}
+
+type TestingGetRequestsForAdminWithFiltersRequest struct {
+	MinData   time.Time `json:"minData"`
+	MaxData   time.Time `json:"maxData"`
+	Status    string    `json:"status"`
+	CreatorID int64     `json:"creatorID"`
+}
+
+type TestingGetRequestsForAdminWithFiltersResponse struct {
+	Requests []*Request `json:"requests"`
+}
+
+type TestingGetRequestsRequest struct {
+	CreatorID int64 `json:"creatorID"`
+}
+
+type TestingGetRequestsResponse struct {
+	Requests []*Request `json:"requests"`
+}
+
+type TestingGetRequestItemsRequest struct {
+	RequestID int64 `json:"requestID"`
+}
+
+type TestingGetRequestItemsResponse struct {
+	RequestItems []*ItemInRequest `json:"requestItems"`
+}
+
+type TestingGetRequestByIDRequest struct {
+	RequestID int64 `json:"requestID"`
+}
+
+type TestingGetRequestByIDResponse struct {
+	Request Request `json:"request"`
+}
+
+type TestingPutRequestStatusRequest struct {
+	ID     int64  `json:"id"`
+	Status string `json:"status"`
+}
+
+type TestingDeleteRequestRequest struct {
+	ID int64 `json:"id"`
+}
+
+type TestingDeleteDraftRequestItemsRequest struct {
+	RequestID int64 `json:"requestID"`
+	ItemID    int64 `json:"itemID"`
+}
+
+type TestingDeleteDraftRequestItemsResponse struct {
+	RequestItems []*ItemInRequest `json:"requestItems"`
 }

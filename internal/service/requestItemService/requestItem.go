@@ -35,3 +35,107 @@ func (r *RequestItemService) PostRequestItem(ctx context.Context, req *httpmodel
 
 	return nil
 }
+
+func (r *RequestItemService) GetRequestItems(ctx context.Context, req *httpmodels.TestingGetRequestItemsRequest) (*httpmodels.TestingGetRequestItemsResponse, error) {
+	items, err := r.Repository.GetRequestItems(req.RequestID)
+	if err != nil {
+		return nil, errors.Wrap(err, "get request items")
+	}
+
+	covertItems := convertItemsToResponse(items)
+	itemsMap := make(map[uint64]httpmodels.ItemInRequest)
+	res := make([]*httpmodels.ItemInRequest, 0)
+
+	for _, item := range covertItems {
+		if value, ok := itemsMap[item.ID]; ok {
+			value.QuantityInRequest += 1
+			itemsMap[item.ID] = value
+		} else {
+			itemsMap[item.ID] = httpmodels.ItemInRequest{
+				Item:              *item,
+				QuantityInRequest: 1,
+			}
+		}
+	}
+
+	for _, v := range itemsMap {
+		res = append(res, &v)
+	}
+
+	resp := &httpmodels.TestingGetRequestItemsResponse{
+		RequestItems: res,
+	}
+
+	return resp, nil
+}
+
+func (r *RequestItemService) DeleteDraftRequestItem(ctx context.Context, req *httpmodels.TestingDeleteDraftRequestItemsRequest) (*httpmodels.TestingDeleteDraftRequestItemsResponse, error) {
+	items, err := r.Repository.GetRequestItems(req.RequestID)
+	if err != nil {
+		return nil, errors.Wrap(err, "get request items")
+	}
+
+	covertItems := convertItemsToResponse(items)
+	itemsMap := make(map[uint64]httpmodels.ItemInRequest)
+	res := make([]*httpmodels.ItemInRequest, 0)
+	notDeleteFlag := true
+
+	for _, item := range covertItems {
+		if item.ID == uint64(req.ItemID) && notDeleteFlag {
+			notDeleteFlag = false
+			continue
+		}
+		if value, ok := itemsMap[item.ID]; ok {
+			value.QuantityInRequest += 1
+			itemsMap[item.ID] = value
+		} else {
+			itemsMap[item.ID] = httpmodels.ItemInRequest{
+				Item:              *item,
+				QuantityInRequest: 1,
+			}
+		}
+	}
+
+	err = r.Repository.DeleteDraftRequestItem(req.RequestID, req.ItemID)
+	if err != nil {
+		return nil, errors.Wrap(err, "delete item from request")
+	}
+	resp := &httpmodels.TestingDeleteDraftRequestItemsResponse{
+		RequestItems: res,
+	}
+
+	return resp, nil
+}
+
+func convertItemsToResponse(items []*ds.Item) []*httpmodels.Item {
+	result := make([]*httpmodels.Item, 0)
+	for _, item := range items {
+		result = append(result, &httpmodels.Item{
+			ID:       item.ID,
+			Name:     item.Name,
+			ImageURL: item.ImageURL,
+			Status:   item.Status,
+			Quantity: item.Quantity,
+			Height:   item.Height,
+			Width:    item.Width,
+			Depth:    item.Depth,
+			Barcode:  item.Barcode,
+		})
+	}
+	return result
+}
+
+// func convertRequestsToResponse(arr []*ds.Request) []*httpmodels.Request {
+// 	result := make([]*httpmodels.Request, 0)
+// 	for _, request := range arr {
+// 		result = append(result, &httpmodels.Request{
+// 			ID:             request.ID,
+// 			Status:         request.Status,
+// 			CreationDate:   request.CreationDate,
+// 			FormationDate:  request.FormationDate,
+// 			CompletionDate: request.CompletionDate,
+// 			CreatorID:      request.CreatorID,
+// 		})
+// 	}
+// 	return result
+// }

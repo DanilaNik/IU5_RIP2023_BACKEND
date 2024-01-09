@@ -41,3 +41,13 @@ type RequestItem struct {
 	ItemID    uint64 `json:"itemID"`
 	RequestID uint64 `json:"requestID"`
 }
+
+type ItemInRequest struct {
+	Item
+	QuantityInRequest uint64 `json:"quantityInRequest"`
+}
+
+type UserRequest struct {
+	Request Request          `json:"request"`
+	Items   []*ItemInRequest `json:"items"`
+}

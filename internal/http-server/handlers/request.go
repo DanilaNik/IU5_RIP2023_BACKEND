@@ -4,114 +4,254 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"time"
 
+	"github.com/DanilaNik/IU5_RIP2023/internal/httpmodels"
 	"github.com/gin-gonic/gin"
 )
 
-// func (h *Handler) GetRequests(ctx *gin.Context) {
-// 	id, role, err := h.getUserRole(ctx)
-// 	if err != nil {
-// 		ctx.JSON(http.StatusForbidden, gin.H{
-// 			"error": err.Error(),
-// 		})
-// 		return
-// 	}
+func (h *Handler) GetRequests(ctx *gin.Context) {
+	id, role, err := h.getUserRole(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	userId, _ := strconv.ParseInt(id, 10, 64)
 
-// 	if role == "Admin" {
-// 		adminOrders := make([]models.Order, 0)
-// 		max := c.Query("max_date")
-// 		min := c.Query("min_date")
-// 		status := c.Query("status")
-// 		tx := s.db.DB.Where("deleted_at IS NULL")
-// 		if max != "" {
-// 			date, _ := time.Parse("2006-01-02", max)
-// 			tx = tx.Where("created_at::date <?", date)
-// 		}
-// 		if min != "" {
-// 			date, _ := time.Parse("2006-01-02", min)
-// 			tx = tx.Where("created_at::date  >=?", date)
-// 		}
-// 		if status != "all" {
-// 			tx = tx.Where("status = ?", status)
-// 		} else {
-// 			tx = tx.Where("status != ?", "new")
-// 		}
+	if role == "Admin" {
+		max := ctx.Query("max_date")
+		min := ctx.Query("min_date")
+		status := ctx.Query("status")
 
-// 		tx = tx.Find(&adminOrders)
-// 		if tx.Error != nil {
-// 			c.JSON(http.StatusBadRequest, gin.H{"error: ": tx.Error.Error()})
-// 			return
-// 		}
-// 		for i := range adminOrders {
-// 			userForEmail := &models.User{}
-// 			s.db.DB.Where("deleted_at IS NULL").Where("id = ?", adminOrders[i].UserId).Find(&userForEmail)
-// 			adminOrders[i].Email = userForEmail.Email
-// 		}
+		var minTime, maxTime time.Time
 
-// 		c.JSON(http.StatusOK, adminOrders)
-// 		return
-// 	}
-// 	users, err := h.Repository.GetRequests()
-// 	if err != nil {
-// 		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
-// 		return
-// 	}
-// 	ctx.JSON(http.StatusOK, users)
-// }
+		if min != "" {
+			minTime, _ = time.Parse("2006-01-02", min)
+		}
+		if max != "" {
+			maxTime, _ = time.Parse("2006-01-02", max)
+		} else {
+			maxTime = time.Now()
+		}
 
-func (h *Handler) GetRequestById(ctx *gin.Context) {
-	idValue := ctx.Param("id")
-	id, _ := strconv.Atoi(idValue)
-	user, err := h.Repository.GetUserByID(id)
+		req := httpmodels.TestingGetRequestsForAdminWithFiltersRequest{
+			MinData:   minTime,
+			MaxData:   maxTime,
+			Status:    status,
+			CreatorID: userId,
+		}
+		data, err := h.RequestService.GetRequestsForAdminWithFilters(ctx, &req)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, data)
+		return
+	}
+
+	req := httpmodels.TestingGetRequestsRequest{
+		CreatorID: userId,
+	}
+	data, err := h.RequestService.GetRequests(ctx, &req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
 		return
 	}
-	ctx.JSON(http.StatusOK, user)
+
+	ctx.JSON(http.StatusOK, data)
+}
+
+func (h *Handler) GetRequestById(ctx *gin.Context) {
+	_, _, err := h.getUserRole(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	requesId, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
+
+	req1 := httpmodels.TestingGetRequestItemsRequest{
+		RequestID: requesId,
+	}
+
+	dataReqestItems, err := h.RequestItemService.GetRequestItems(ctx, &req1)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+		return
+	}
+
+	req2 := httpmodels.TestingGetRequestByIDRequest{
+		RequestID: requesId,
+	}
+	dataRequest, err := h.RequestService.GetRequestByID(ctx, &req2)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+		return
+	}
+
+	res := httpmodels.UserRequest{
+		Request: dataRequest.Request,
+		Items:   dataReqestItems.RequestItems,
+	}
+
+	ctx.JSON(http.StatusOK, res)
+}
+
+func (h *Handler) PutRequestStatus(ctx *gin.Context) {
+	_, role, err := h.getUserRole(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	if role != "Admin" {
+		ctx.JSON(http.StatusForbidden, gin.H{})
+		return
+	}
+
+	requesId, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
+
+	jsonData, err := ctx.GetRawData()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error: ": err.Error(),
+		})
+		return
+	}
+
+	status := struct {
+		Status string `json:"status"`
+	}{}
+
+	err = json.Unmarshal(jsonData, &status)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
+		return
+	}
+
+	req := httpmodels.TestingPutRequestStatusRequest{
+		ID:     requesId,
+		Status: status.Status,
+	}
+
+	err = h.RequestService.PutRequestStatus(ctx, &req)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{})
+}
+
+func (h *Handler) ConfirmRequest(ctx *gin.Context) {
+	id, _, err := h.getUserRole(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	userID, _ := strconv.ParseInt(id, 10, 64)
+
+	dataRequest, err := h.RequestService.GetDraftRequestByIdAndStatus(ctx, int(userID), "draft")
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+		return
+	}
+
+	req := httpmodels.TestingPutRequestStatusRequest{
+		ID:     int64(dataRequest.Request.ID),
+		Status: "formed",
+	}
+
+	err = h.RequestService.ConfirmRequest(ctx, &req)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{})
 }
 
 func (h *Handler) DeleteRequest(ctx *gin.Context) {
+	_, _, err := h.getUserRole(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
 	jsonData, err := ctx.GetRawData()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 		return
 	}
 	id := struct {
-		Id uint64 `json:"id"`
+		Id int64 `json:"id"`
 	}{}
 	err = json.Unmarshal(jsonData, &id)
-	if err != nil {
+	if err != nil || id.Id <= 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 		return
 	}
-	err = h.Repository.DeleteRequest(int(id.Id))
+
+	req := httpmodels.TestingDeleteRequestRequest{
+		ID: id.Id,
+	}
+
+	err = h.RequestService.DeleteRequest(ctx, &req)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"error: ": err.Error})
+
+	ctx.JSON(http.StatusOK, gin.H{})
 }
 
-func (h *Handler) UpdateRequestStatus(ctx *gin.Context) {
-	jsonData, err := ctx.GetRawData()
+func (h *Handler) DeleteItemFromRequest(ctx *gin.Context) {
+	id, _, err := h.getUserRole(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	itemId, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
+
+	userID, _ := strconv.ParseInt(id, 10, 64)
+
+	dataRequest, err := h.RequestService.GetDraftRequestByIdAndStatus(ctx, int(userID), "draft")
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+		return
+	}
+
+	req := httpmodels.TestingDeleteDraftRequestItemsRequest{
+		RequestID: int64(dataRequest.Request.ID),
+		ItemID:    itemId,
+	}
+	dataReqestItems, err := h.RequestItemService.DeleteDraftRequestItem(ctx, &req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 		return
 	}
-	id := struct {
-		Id uint64 `json:"id"`
-	}{}
-	err = json.Unmarshal(jsonData, &id)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
-		return
+
+	res := httpmodels.UserRequest{
+		Request: dataRequest.Request,
+		Items:   dataReqestItems.RequestItems,
 	}
-	err = h.Repository.DeleteRequest(int(id.Id))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
-		return
-	}
-	ctx.JSON(http.StatusOK, gin.H{"error: ": err.Error})
+
+	ctx.JSON(http.StatusOK, res)
 }
 
 // func (h *Handler) PutOrderStatus(ctx *gin.Context) {

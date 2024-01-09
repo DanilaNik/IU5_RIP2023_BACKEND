@@ -34,7 +34,10 @@ func (r *Repository) GetItemByID(id int, host string) (*ds.Item, error) {
 }
 
 func (r *Repository) DeleteItem(id int) error {
-	err := r.db.Model(&ds.Item{}).Where("id = ?", id).Update("status", "deleted").Error
+	err := r.db.Model(&ds.Item{}).Where("id = ?", id).Updates(map[string]interface{}{
+		"status":     "deleted",
+		"deleted_at": r.db.NowFunc(),
+	}).Error
 	if err != nil {
 		return err
 	}
