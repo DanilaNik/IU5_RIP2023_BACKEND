@@ -98,3 +98,21 @@ func (a *AuthorizationService) IsLogout(id string) error {
 	}
 	return nil
 }
+
+func (a *AuthorizationService) GetUserByID(id int) (*httpmodels.TestingGetUserByIDResponse, error) {
+	user, err := a.Repository.GetUserByID(id)
+	if err != nil {
+		return nil, errors.Wrap(err, "get user by id")
+	}
+
+	resp := &httpmodels.TestingGetUserByIDResponse{
+		User: httpmodels.User{
+			ID:       user.ID,
+			Login:    user.Login,
+			Email:    user.Email,
+			UserName: user.UserName,
+			Role:     user.Role,
+		},
+	}
+	return resp, nil
+}

@@ -124,7 +124,7 @@ func (h *Handler) isLogout(id string) bool {
 func (h *Handler) GetUsers(ctx *gin.Context) {
 	users, err := h.Repository.GetUsers()
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 		return
 	}
 	ctx.JSON(http.StatusOK, users)
@@ -146,7 +146,7 @@ func (h *Handler) GetUserById(ctx *gin.Context) {
 	}
 	user, err := h.Repository.GetUserByID(int(id.Id))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 		return
 	}
 	ctx.JSON(http.StatusOK, user)
@@ -222,7 +222,7 @@ func (h *Handler) GetUserRequests(ctx *gin.Context) {
 
 	requests, err := h.Repository.GetUserRequests(int(id.Id))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 		return
 	}
 	ctx.JSON(http.StatusOK, requests)
@@ -232,4 +232,46 @@ func (h *Handler) ProtectedTest(ctx *gin.Context) {
 	userID := ctx.MustGet("UserID").(int)
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "user is authorized admin and moderator", "userID": userID})
+}
+
+// Validate godoc
+// @Summary      validate auth
+// @Tags         auth
+// @Param 		 Cookie header string  false "token"     default(token=xxx)
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  httpmodels.TestingValidateResponse
+// @Router       /validate [post]
+func (h *Handler) Validate(ctx *gin.Context) {
+	id, _, err := h.getUserRole(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	userId, _ := strconv.Atoi(id)
+
+	dataUser, err := h.AuthorizationService.GetUserByID(userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
+		return
+	}
+	dataRequest, err := h.RequestService.GetDraftRequestByIdAndStatus(ctx, userId, "draft")
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
+		return
+	}
+
+	res := httpmodels.TestingValidateResponse{
+		ID:        dataUser.User.ID,
+		Login:     dataUser.User.Login,
+		Email:     dataUser.User.Email,
+		UserName:  dataUser.User.UserName,
+		Role:      dataUser.User.Role,
+		RequestID: dataRequest.Request.ID,
+	}
+
+	ctx.JSON(http.StatusOK, res)
 }

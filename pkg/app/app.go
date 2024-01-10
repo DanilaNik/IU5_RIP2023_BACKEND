@@ -7,7 +7,6 @@ import (
 	"github.com/DanilaNik/IU5_RIP2023/docs"
 	"github.com/DanilaNik/IU5_RIP2023/internal/config"
 	"github.com/DanilaNik/IU5_RIP2023/internal/http-server/handlers"
-	"github.com/DanilaNik/IU5_RIP2023/internal/service/role"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	swaggerFiles "github.com/swaggo/files"
@@ -63,11 +62,6 @@ func (a *Application) Run() {
 	a.Router.DELETE("/order/delete", a.Handler.DeleteRequest)
 	a.Router.DELETE("orders/items/:id", a.Handler.DeleteItemFromRequest)
 
-	// admin and moderator test handlers
-	// a.Router.GET("/user/orders", a.RoleMiddleware(role.Admin, role.Moderator), a.Handler.GetUserRequests)
-	// a.Router.POST("item", a.RoleMiddleware(role.Admin, role.Moderator), a.Handler.CreateItem)
-
-	//Authorization
 	a.Router.POST("/signup", a.Handler.SignUp)
 	a.Router.POST("/login", a.Handler.Login)
 	a.Router.POST("/logout", a.Handler.Logout)
@@ -78,8 +72,6 @@ func (a *Application) Run() {
 	a.Router.Use(a.Handler.AdminAuth).POST("/validate_admin", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{})
 	})
-
-	a.Router.GET("/protected", a.RoleMiddleware(role.Admin, role.Moderator), a.Handler.ProtectedTest)
 
 	serverAddress := fmt.Sprintf("%s:%d", a.Config.ServiceHost, a.Config.ServicePort)
 	if err := a.Router.Run(serverAddress); err != nil {

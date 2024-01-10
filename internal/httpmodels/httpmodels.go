@@ -158,3 +158,12 @@ type TestingDeleteDraftRequestItemsRequest struct {
 type TestingDeleteDraftRequestItemsResponse struct {
 	RequestItems []*ItemInRequest `json:"requestItems"`
 }
+
+type TestingValidateResponse struct {
+	ID        uint64    `json:"id"`
+	Login     string    `json:"login"`
+	Email     string    `json:"email"`
+	UserName  string    `json:"userName"`
+	Role      role.Role `json:"role"`
+	RequestID uint64    `json:"requestID"`
+}

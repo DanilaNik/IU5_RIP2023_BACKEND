@@ -148,6 +148,21 @@ definitions:
       userName:
         type: string
     type: object
+  httpmodels.TestingValidateResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      login:
+        type: string
+      requestID:
+        type: integer
+      role:
+        type: string
+      userName:
+        type: string
+    type: object
   httpmodels.UserRequest:
     properties:
       items:
@@ -165,10 +180,10 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: filter by search text
+      - description: filter by title
         format: text
         in: query
-        name: search
+        name: title
         type: string
       produces:
       - application/json
@@ -438,7 +453,7 @@ paths:
       parameters:
       - description: Order id
         in: body
-        name: status
+        name: id
         required: true
         schema:
           $ref: '#/definitions/httpmodels.RequestID'
@@ -502,6 +517,26 @@ paths:
           schema:
             $ref: '#/definitions/httpmodels.TestingRegisterResponse'
       summary: Sign up
+      tags:
+      - auth
+  /validate:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - default: token=xxx
+        description: token
+        in: header
+        name: Cookie
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/httpmodels.TestingValidateResponse'
+      summary: validate auth
       tags:
       - auth
 swagger: "2.0"

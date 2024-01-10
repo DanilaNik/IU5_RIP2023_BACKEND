@@ -63,17 +63,17 @@ func (h *Handler) LoadS3(ctx *gin.Context) {
 // GetItems godoc
 // @Summary      Get list of all items
 // @Tags         items
-// @Param        search    query     string  false  "filter by search text"  Format(text)
+// @Param        title    query     string  false  "filter by title"  Format(text)
 // @Accept       json
 // @Produce      json
 // @Success      200  {object}  httpmodels.TestingGetItemsResponse
 // @Router       /items [get]
 func (h *Handler) GetItems(ctx *gin.Context) {
 	userId, _, userErr := h.getUserRole(ctx)
-	searchText := ctx.Query("search")
+	searchText := ctx.Query("title")
 	resp, err := h.ItemService.GetItems(ctx, searchText)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 		return
 	}
 	if userErr != nil {
@@ -83,7 +83,7 @@ func (h *Handler) GetItems(ctx *gin.Context) {
 
 	id, err := strconv.Atoi(userId)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 		return
 	}
 
@@ -97,12 +97,12 @@ func (h *Handler) GetItems(ctx *gin.Context) {
 		}
 		err1 := h.RequestService.PostRequest(ctx, req1)
 		if err1 != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err1})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err1.Error()})
 			return
 		}
 		dataRequest, err1 = h.RequestService.GetDraftRequestByIdAndStatus(ctx, id, "draft")
 		if err1 != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err1})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err1.Error()})
 			return
 		}
 	}
@@ -120,15 +120,14 @@ func (h *Handler) GetItems(ctx *gin.Context) {
 // @Success      200  {object}  httpmodels.TestingGetItemByIDResponse
 // @Router       /items/{id} [get]
 func (h *Handler) GetItemById(ctx *gin.Context) {
-	idValue := ctx.Param("id")
-	id, _ := strconv.Atoi(idValue)
+	itemId, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	req := httpmodels.TestingGetItemByIDRequest{
-		ID: int64(id),
+		ID: itemId,
 	}
 
 	resp, err := h.ItemService.GetItemByID(ctx, &req)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 		return
 	}
 	ctx.JSON(http.StatusOK, resp)
@@ -155,6 +154,7 @@ func (h *Handler) PostItem(ctx *gin.Context) {
 		ctx.JSON(http.StatusForbidden, gin.H{})
 		return
 	}
+
 	jsonData, err := ctx.GetRawData()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
@@ -173,7 +173,7 @@ func (h *Handler) PostItem(ctx *gin.Context) {
 
 	err = h.ItemService.PostItem(ctx, &req)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 		return
 	}
 	ctx.JSON(http.StatusOK, item)
@@ -200,6 +200,7 @@ func (h *Handler) DeleteItem(ctx *gin.Context) {
 		ctx.JSON(http.StatusForbidden, gin.H{})
 		return
 	}
+
 	itemId, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	req := httpmodels.TestingDeleteItemRequest{
 		ID: itemId,
@@ -207,7 +208,7 @@ func (h *Handler) DeleteItem(ctx *gin.Context) {
 
 	err = h.ItemService.DeleteItem(ctx, &req)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 		return
 	}
 
@@ -255,7 +256,7 @@ func (h *Handler) PutItem(ctx *gin.Context) {
 
 	err = h.ItemService.PutItem(ctx, &req, itemId)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{})
@@ -291,12 +292,12 @@ func (h *Handler) PostItemToRequest(ctx *gin.Context) {
 		}
 		err1 := h.RequestService.PostRequest(ctx, req1)
 		if err1 != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err1})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err1.Error()})
 			return
 		}
 		dataRequest, err1 = h.RequestService.GetDraftRequestByIdAndStatus(ctx, id, "draft")
 		if err1 != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err1})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err1.Error()})
 			return
 		}
 	}
@@ -309,7 +310,7 @@ func (h *Handler) PostItemToRequest(ctx *gin.Context) {
 	}
 	err2 := h.RequestItemService.PostRequestItem(ctx, req2)
 	if err2 != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err2})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err2.Error()})
 		return
 	}
 

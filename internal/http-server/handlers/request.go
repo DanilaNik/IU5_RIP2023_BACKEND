@@ -56,7 +56,7 @@ func (h *Handler) GetRequests(ctx *gin.Context) {
 		}
 		data, err := h.RequestService.GetRequestsForAdminWithFilters(ctx, &req)
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 			return
 		}
 
@@ -69,7 +69,7 @@ func (h *Handler) GetRequests(ctx *gin.Context) {
 	}
 	data, err := h.RequestService.GetRequests(ctx, &req)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 		return
 	}
 
@@ -101,7 +101,7 @@ func (h *Handler) GetRequestById(ctx *gin.Context) {
 
 	dataReqestItems, err := h.RequestItemService.GetRequestItems(ctx, &req1)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 		return
 	}
 
@@ -110,7 +110,7 @@ func (h *Handler) GetRequestById(ctx *gin.Context) {
 	}
 	dataRequest, err := h.RequestService.GetRequestByID(ctx, &req2)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 		return
 	}
 
@@ -170,7 +170,7 @@ func (h *Handler) PutRequestStatus(ctx *gin.Context) {
 
 	err = h.RequestService.PutRequestStatus(ctx, &req)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 		return
 	}
 
@@ -197,7 +197,7 @@ func (h *Handler) ConfirmRequest(ctx *gin.Context) {
 
 	dataRequest, err := h.RequestService.GetDraftRequestByIdAndStatus(ctx, int(userID), "draft")
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 		return
 	}
 
@@ -208,7 +208,7 @@ func (h *Handler) ConfirmRequest(ctx *gin.Context) {
 
 	err = h.RequestService.ConfirmRequest(ctx, &req)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 		return
 	}
 
@@ -218,7 +218,7 @@ func (h *Handler) ConfirmRequest(ctx *gin.Context) {
 // DeleteRequest godoc
 // @Summary      Delete order
 // @Tags         orders
-// @Param        status body httpmodels.RequestID true "Order id"
+// @Param        id body httpmodels.RequestID true "Order id"
 // @Accept       json
 // @Produce      json
 // @Success      200
@@ -250,7 +250,7 @@ func (h *Handler) DeleteRequest(ctx *gin.Context) {
 
 	err = h.RequestService.DeleteRequest(ctx, &req)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 		return
 	}
 
@@ -280,7 +280,7 @@ func (h *Handler) DeleteItemFromRequest(ctx *gin.Context) {
 
 	dataRequest, err := h.RequestService.GetDraftRequestByIdAndStatus(ctx, int(userID), "draft")
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 		return
 	}
 
@@ -301,51 +301,3 @@ func (h *Handler) DeleteItemFromRequest(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, res)
 }
-
-// func (h *Handler) PutOrderStatus(ctx *gin.Context) {
-// 	id, role, err := h.getUserRole(ctx)
-// 	if err != nil {
-// 		ctx.JSON(http.StatusForbidden, gin.H{
-// 			"error": err.Error(),
-// 		})
-// 		return
-// 	}
-// 	if role != "Admin" {
-// 		ctx.JSON(http.StatusForbidden, gin.H{})
-// 		return
-// 	}
-// 	orderId, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
-
-// 	status := &struct {
-// 		Status string `json:"status"`
-// 	}{}
-
-// 	jsonData, err := ctx.GetRawData()
-// 	if err != nil {
-// 		ctx.JSON(http.StatusBadRequest, gin.H{
-// 			"error: ": err.Error(),
-// 		})
-// 		return
-// 	}
-// 	err = json.Unmarshal(jsonData, status)
-// 	if err != nil {
-// 		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
-// 		return
-// 	}
-
-// 	order := &models.Order{}
-// 	tx := s.db.DB.Where("deleted_at IS NULL").Where("id = ?", orderId).First(&order)
-// 	if tx.Error != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error: ": tx.Error.Error()})
-// 		return
-// 	}
-// 	order.Status = status.Status
-// 	order.AdminId, _ = strconv.ParseUint(id, 10, 64)
-// 	tx = s.db.DB.Where("id = ?", orderId).Updates(order)
-// 	if tx.Error != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error: ": tx.Error.Error()})
-// 		return
-// 	}
-
-// 	c.JSON(http.StatusOK, gin.H{})
-// }

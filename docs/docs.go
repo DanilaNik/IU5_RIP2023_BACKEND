@@ -32,8 +32,8 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "format": "text",
-                        "description": "filter by search text",
-                        "name": "search",
+                        "description": "filter by title",
+                        "name": "title",
                         "in": "query"
                     }
                 ],
@@ -376,7 +376,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "description": "Order id",
-                        "name": "status",
+                        "name": "id",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -540,6 +540,37 @@ const docTemplate = `{
                         "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/httpmodels.TestingRegisterResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/validate": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "validate auth",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "token=xxx",
+                        "description": "token",
+                        "name": "Cookie",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/httpmodels.TestingValidateResponse"
                         }
                     }
                 }
@@ -768,6 +799,29 @@ const docTemplate = `{
                 },
                 "password": {
                     "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "userName": {
+                    "type": "string"
+                }
+            }
+        },
+        "httpmodels.TestingValidateResponse": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "requestID": {
+                    "type": "integer"
                 },
                 "role": {
                     "type": "string"
