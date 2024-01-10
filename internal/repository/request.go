@@ -66,6 +66,17 @@ func (r *Repository) GetRequestsForAdminWithFilters(minData time.Time, maxData t
 	return requests, res.Error
 }
 
+func (r *Repository) GetRequestsForAdminWithFiltersAndUser(minData time.Time, maxData time.Time, status string, id uint64) ([]*ds.Request, error) {
+	var requests []*ds.Request
+	if status == "all" {
+		res := r.db.Where("deleted_at IS NULL").Where("creator_id = ?", id).Where("status != 'draft' AND status != 'deleted'").Where("created_at <= ?", maxData).Where("created_at >= ?", minData).Find(&requests)
+		return requests, res.Error
+	}
+
+	res := r.db.Where("deleted_at IS NULL").Where("creator_id = ?", id).Where("status != 'deleted' AND status = ?", status).Where("created_at <= ?", maxData).Where("created_at >= ?", minData).Find(&requests)
+	return requests, res.Error
+}
+
 func (r *Repository) GetRequests(id int64) ([]*ds.Request, error) {
 	var requests []*ds.Request
 

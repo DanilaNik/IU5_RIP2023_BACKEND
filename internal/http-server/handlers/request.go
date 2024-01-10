@@ -16,6 +16,7 @@ import (
 // @Param        min_date    query     string  false  "min date"  Format(text)
 // @Param        max_date    query     string  false  "max date"  Format(text)
 // @Param        status      query     string  false  "order status"  Format(text)
+// @Param        login       query     string  false  "order creator"  Format(text)
 // @Accept       json
 // @Produce      json
 // @Success      200  {object}  httpmodels.TestingGetRequestsForAdminWithFiltersResponse
@@ -34,6 +35,7 @@ func (h *Handler) GetRequests(ctx *gin.Context) {
 		max := ctx.Query("max_date")
 		min := ctx.Query("min_date")
 		status := ctx.Query("status")
+		login := ctx.Query("login")
 
 		var minTime, maxTime time.Time
 
@@ -50,6 +52,7 @@ func (h *Handler) GetRequests(ctx *gin.Context) {
 			MinData: minTime,
 			MaxData: maxTime,
 			Status:  status,
+			Login:   login,
 		}
 		data, err := h.RequestService.GetRequestsForAdminWithFilters(ctx, &req)
 		if err != nil {

@@ -58,17 +58,33 @@ func (r *RequestService) PostRequest(ctx context.Context, req *httpmodels.Testin
 }
 
 func (r *RequestService) GetRequestsForAdminWithFilters(ctx context.Context, req *httpmodels.TestingGetRequestsForAdminWithFiltersRequest) (*httpmodels.TestingGetRequestsForAdminWithFiltersResponse, error) {
-	requests, err := r.Repository.GetRequestsForAdminWithFilters(req.MinData, req.MaxData, req.Status)
-	if err != nil {
-		return nil, errors.Wrap(err, "get requests with filters")
-	}
+	if req.Login != "" {
+		user, err := r.Repository.GetUserByLogin(req.Login)
+		if err != nil {
+			return nil, errors.Wrap(err, "get user id by login")
+		}
+		requests, err := r.Repository.GetRequestsForAdminWithFiltersAndUser(req.MinData, req.MaxData, req.Status, user.ID)
+		if err != nil {
+			return nil, errors.Wrap(err, "get requests with filters")
+		}
+		res := convertToResponse(requests)
+		resp := &httpmodels.TestingGetRequestsForAdminWithFiltersResponse{
+			Requests: res,
+		}
 
-	res := convertToResponse(requests)
-	resp := &httpmodels.TestingGetRequestsForAdminWithFiltersResponse{
-		Requests: res,
-	}
+		return resp, nil
+	} else {
+		requests, err := r.Repository.GetRequestsForAdminWithFilters(req.MinData, req.MaxData, req.Status)
+		if err != nil {
+			return nil, errors.Wrap(err, "get requests with filters")
+		}
+		res := convertToResponse(requests)
+		resp := &httpmodels.TestingGetRequestsForAdminWithFiltersResponse{
+			Requests: res,
+		}
 
-	return resp, nil
+		return resp, nil
+	}
 }
 
 func (r *RequestService) GetRequests(ctx context.Context, req *httpmodels.TestingGetRequestsRequest) (*httpmodels.TestingGetRequestsForAdminWithFiltersResponse, error) {

@@ -342,6 +342,13 @@ const docTemplate = `{
                         "description": "order status",
                         "name": "status",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "format": "text",
+                        "description": "order creator",
+                        "name": "login",
+                        "in": "query"
                     }
                 ],
                 "responses": {

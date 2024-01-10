@@ -110,6 +110,7 @@ type TestingGetRequestsForAdminWithFiltersRequest struct {
 	MinData time.Time `json:"minData"`
 	MaxData time.Time `json:"maxData"`
 	Status  string    `json:"status"`
+	Login   string    `json:"login"`
 }
 
 type TestingGetRequestsForAdminWithFiltersResponse struct {
