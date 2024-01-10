@@ -12,16 +12,14 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-// @Summary Register
-// @Description Register a new user with the provided user data
-// @Tags users
-// @Accept  json
-// @Produce  json
-// @Param input body httpmodels.TestingRegisterRequest true "User data to register"
-// @Success 201 {object} httpmodels.TestingRegisterResponse
-// @Failure 400 {object} map[string]string
-// @Failure 500 {object} map[string]string
-// @Router /register [post]
+// Sign godoc
+// @Summary      Sign up
+// @Tags         auth
+// @Param        userPrototype body httpmodels.TestingRegisterRequest true "User object"
+// @Accept       json
+// @Produce      json
+// @Success      201  {object}  httpmodels.TestingRegisterResponse
+// @Router       /signup [post]
 func (h *Handler) SignUp(ctx *gin.Context) {
 	var userJSON httpmodels.TestingRegisterRequest
 	if err := ctx.ShouldBindJSON(&userJSON); err != nil {
@@ -38,16 +36,14 @@ func (h *Handler) SignUp(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, user)
 }
 
-// @Summary Login
-// @Description Login with the provided user credentials and receive a JWT token
-// @Tags users
-// @Accept json
-// @Produce json
-// @Param input body httpmodels.TestingLoginRequest true "User credentials for login"
-// @Success 200 {object} httpmodels.TestingLoginResponse
-// @Failure 400 {object} map[string]string
-// @Failure 500 {object} map[string]string
-// @Router /login [post]
+// Login godoc
+// @Summary      Login
+// @Tags         auth
+// @Param        userCreds body httpmodels.TestingLoginRequest true "User object"
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  httpmodels.TestingLoginResponse
+// @Router       /login [post]
 func (h *Handler) Login(ctx *gin.Context) {
 	var userJSON httpmodels.TestingLoginRequest
 
@@ -92,6 +88,14 @@ func (h *Handler) getUserRole(ctx *gin.Context) (string, string, error) {
 	return id, role, nil
 }
 
+// Logout godoc
+// @Summary      Logout
+// @Tags         auth
+// @Param 		 Cookie header string  false "token"     default(token=xxx)
+// @Accept       json
+// @Produce      json
+// @Success      200
+// @Router       /logout [post]
 func (h *Handler) Logout(ctx *gin.Context) {
 	id, _, err := h.getUserRole(ctx)
 	if err != nil {
@@ -224,14 +228,6 @@ func (h *Handler) GetUserRequests(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, requests)
 }
 
-// @Summary Protected test endpoint
-// @Description Test endpoint accessible only with valid Bearer Token
-// @Security ApiKeyAuth
-// @Tags users
-// @Accept json
-// @Produce json
-// @Success 200 {object} map[string]any
-// @Router /protected/test [get]
 func (h *Handler) ProtectedTest(ctx *gin.Context) {
 	userID := ctx.MustGet("UserID").(int)
 

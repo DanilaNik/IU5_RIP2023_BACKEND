@@ -10,6 +10,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// GetRequests godoc
+// @Summary      Get list of all orders
+// @Tags         orders
+// @Param        min_date    query     string  false  "min date"  Format(text)
+// @Param        max_date    query     string  false  "max date"  Format(text)
+// @Param        status      query     string  false  "order status"  Format(text)
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  httpmodels.TestingGetRequestsForAdminWithFiltersResponse
+// @Router       /orders [get]
 func (h *Handler) GetRequests(ctx *gin.Context) {
 	id, role, err := h.getUserRole(ctx)
 	if err != nil {
@@ -63,6 +73,14 @@ func (h *Handler) GetRequests(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, data)
 }
 
+// GetRequestById godoc
+// @Summary      Get order by id
+// @Tags         orders
+// @Param        id    path     string  true  "order id"  Format(text)
+// @Accept       json
+// @Produce      json
+// @Success      200  {object} httpmodels.UserRequest
+// @Router       /orders/{id} [get]
 func (h *Handler) GetRequestById(ctx *gin.Context) {
 	_, _, err := h.getUserRole(ctx)
 	if err != nil {
@@ -101,6 +119,15 @@ func (h *Handler) GetRequestById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, res)
 }
 
+// PutRequestStatus godoc
+// @Summary      Approve or decline order
+// @Tags         orders
+// @Param        status body httpmodels.RequestStatus true "Order status"
+// @Param        id    path     string  true  "order id"  Format(text)
+// @Accept       json
+// @Produce      json
+// @Success      200
+// @Router       /orders/{id}/approve [put]
 func (h *Handler) PutRequestStatus(ctx *gin.Context) {
 	_, role, err := h.getUserRole(ctx)
 	if err != nil {
@@ -125,9 +152,7 @@ func (h *Handler) PutRequestStatus(ctx *gin.Context) {
 		return
 	}
 
-	status := struct {
-		Status string `json:"status"`
-	}{}
+	status := httpmodels.RequestStatus{}
 
 	err = json.Unmarshal(jsonData, &status)
 	if err != nil {
@@ -149,6 +174,13 @@ func (h *Handler) PutRequestStatus(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{})
 }
 
+// ConfirmRequest godoc
+// @Summary      Confirm current order
+// @Tags         orders
+// @Accept       json
+// @Produce      json
+// @Success      200
+// @Router       /orders/make [put]
 func (h *Handler) ConfirmRequest(ctx *gin.Context) {
 	id, _, err := h.getUserRole(ctx)
 	if err != nil {
@@ -180,6 +212,14 @@ func (h *Handler) ConfirmRequest(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{})
 }
 
+// DeleteRequest godoc
+// @Summary      Delete order
+// @Tags         orders
+// @Param        status body httpmodels.RequestID true "Order id"
+// @Accept       json
+// @Produce      json
+// @Success      200
+// @Router       /orders/delete [delete]
 func (h *Handler) DeleteRequest(ctx *gin.Context) {
 	_, _, err := h.getUserRole(ctx)
 	if err != nil {
@@ -194,9 +234,7 @@ func (h *Handler) DeleteRequest(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 		return
 	}
-	id := struct {
-		Id int64 `json:"id"`
-	}{}
+	id := httpmodels.RequestID{}
 	err = json.Unmarshal(jsonData, &id)
 	if err != nil || id.Id <= 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
@@ -216,6 +254,14 @@ func (h *Handler) DeleteRequest(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{})
 }
 
+// DeleteItemFromRequest godoc
+// @Summary      Delete item from current order
+// @Tags         orders
+// @Param        id    path     string  true  "item id"  Format(text)
+// @Accept       json
+// @Produce      json
+// @Success      200 {object} httpmodels.UserRequest
+// @Router       /orders/items/{id} [delete]
 func (h *Handler) DeleteItemFromRequest(ctx *gin.Context) {
 	id, _, err := h.getUserRole(ctx)
 	if err != nil {

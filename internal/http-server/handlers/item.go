@@ -13,63 +13,61 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"
+	"github.com/swaggo/swag/example/celler/httputil"
 )
 
 // LoadS3 godoc
 // @Summary      Upload s3 file
-// @Tags         s3
+// @Tags         items
 // @Param file formData file true "upload file"
 // @Param metadata formData string false "metadata"
-// @Accept      mpfd
+// @Accept       mpfd
 // @Accept       json
 // @Produce      json
-// @Success      200  {object}  Empty
-// @Router       /s3/upload [post]
+// @Success      200  {object} httpmodels.ImageSwagger
+// @Router       /items/image [post]
 func (h *Handler) LoadS3(ctx *gin.Context) {
-	file, err := ctx.FormFile("file")
+	var form httpmodels.FormSwagger
+	err := ctx.ShouldBind(&form)
 
-	// The file cannot be received.
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": "No file is received",
-		})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Retrieve file information
-	extension := filepath.Ext(file.Filename)
+	extension := filepath.Ext(form.File.Filename)
 	newFileName := uuid.New().String() + extension
-	// filePath := "/files/" + newFileName
-	contentType := file.Header["Content-Type"][0]
-	buffer, err := file.Open()
+	contentType := form.File.Header["Content-Type"][0]
+	buffer, err := form.File.Open()
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err})
+		httputil.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
-	h.Minio.PutObject(context.Background(), "cnc", newFileName, buffer, file.Size, minio.PutObjectOptions{ContentType: contentType})
+	h.Minio.PutObject(context.Background(), "warehouse", newFileName, buffer, form.File.Size, minio.PutObjectOptions{ContentType: contentType})
 	reqParams := make(url.Values)
-	link, err := h.Minio.PresignedGetObject(context.Background(), "cnc", newFileName, 7*24*time.Hour, reqParams)
-	if link == nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"link": "",
-			"err":  err,
+	link, err := h.Minio.PresignedGetObject(context.Background(), "warehouse", newFileName, 7*24*time.Hour, reqParams)
+	if link != nil {
+		convertLink := link.Port() + link.Path
+		ctx.JSON(http.StatusOK, httpmodels.ImageSwagger{
+			Link:  convertLink,
+			Error: "",
+		})
+	} else {
+		ctx.JSON(http.StatusInternalServerError, httpmodels.ImageSwagger{
+			Link:  "",
+			Error: err.Error(),
 		})
 	}
-	ctx.JSON(http.StatusOK, gin.H{
-		"link": link.String(),
-		"err":  err,
-	})
 }
 
-// @Summary GetItems
-// @Description Get data about active items
-// @Tags items
-// @Accept  json
-// @Produce  json
-// @Success 201 {object} httpmodels.TestingGetItemsResponse
-// @Failure 400 {object} map[string]string
-// @Failure 500 {object} map[string]string
-// @Router /items [get]
+// GetItems godoc
+// @Summary      Get list of all items
+// @Tags         items
+// @Param        search    query     string  false  "filter by search text"  Format(text)
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  httpmodels.TestingGetItemsResponse
+// @Router       /items [get]
 func (h *Handler) GetItems(ctx *gin.Context) {
 	userId, _, userErr := h.getUserRole(ctx)
 	searchText := ctx.Query("search")
@@ -113,15 +111,14 @@ func (h *Handler) GetItems(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, resp)
 }
 
-// @Summary GetItemById
-// @Description Get data about item
-// @Tags items
-// @Accept  json
-// @Produce  json
-// @Success 201 {object} httpmodels.TestingGetItemByIDResponse
-// @Failure 400 {object} map[string]string
-// @Failure 500 {object} map[string]string
-// @Router /item [get]
+// GetItemById godoc
+// @Summary      Get item by id
+// @Tags         items
+// @Param        id    path     string  false  "item id"  Format(text)
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  httpmodels.TestingGetItemByIDResponse
+// @Router       /items/{id} [get]
 func (h *Handler) GetItemById(ctx *gin.Context) {
 	idValue := ctx.Param("id")
 	id, _ := strconv.Atoi(idValue)
@@ -137,6 +134,14 @@ func (h *Handler) GetItemById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, resp)
 }
 
+// PostItem godoc
+// @Summary      Create item
+// @Tags         items
+// @Param        itemPrototype body httpmodels.Item true "Item object"
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  httpmodels.Item
+// @Router       /items/post [post]
 func (h *Handler) PostItem(ctx *gin.Context) {
 	_, role, err := h.getUserRole(ctx)
 	if err != nil {
@@ -174,6 +179,14 @@ func (h *Handler) PostItem(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, item)
 }
 
+// Deleteitem godoc
+// @Summary      Delete item by id
+// @Tags         items
+// @Param        id    path     int  true  "item id"  Format(text)
+// @Accept       json
+// @Produce      json
+// @Success      200
+// @Router       /items/{id}/delete [delete]
 func (h *Handler) DeleteItem(ctx *gin.Context) {
 	_, role, err := h.getUserRole(ctx)
 	if err != nil {
@@ -201,6 +214,15 @@ func (h *Handler) DeleteItem(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{})
 }
 
+// PutItem godoc
+// @Summary      Change item
+// @Tags         items
+// @Param        itemPrototype body httpmodels.Item true "Item object"
+// @Param        id    path     int  true  "item id"  Format(text)
+// @Accept       json
+// @Produce      json
+// @Success      200
+// @Router       /items/{id}/put [put]
 func (h *Handler) PutItem(ctx *gin.Context) {
 	_, role, err := h.getUserRole(ctx)
 	if err != nil {
@@ -239,6 +261,14 @@ func (h *Handler) PutItem(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{})
 }
 
+// PostItemToRequest godoc
+// @Summary      Post item to current order
+// @Tags         items
+// @Param        id    path     int  true  "item id"  Format(text)
+// @Accept       json
+// @Produce      json
+// @Success      200 {object} httpmodels.TestingGetDraftRequestByIDResponse
+// @Router       /items/{id}/post [post]
 func (h *Handler) PostItemToRequest(ctx *gin.Context) {
 	userId, _, err := h.getUserRole(ctx)
 	if err != nil {

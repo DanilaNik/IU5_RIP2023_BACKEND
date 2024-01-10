@@ -36,7 +36,7 @@ func (a *Application) Run() {
 	docs.SwaggerInfo.Title = "Warehouse"
 	docs.SwaggerInfo.Description = "API SERVER"
 	docs.SwaggerInfo.Version = "1.0"
-	docs.SwaggerInfo.Host = "localhost:7070"
+	docs.SwaggerInfo.Host = "172.20.10.6:7070"
 	docs.SwaggerInfo.BasePath = "/"
 
 	a.Router.GET("/ping", func(ctx *gin.Context) {

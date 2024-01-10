@@ -1,4 +1,11 @@
 definitions:
+  httpmodels.ImageSwagger:
+    properties:
+      error:
+        type: string
+      link:
+        type: string
+    type: object
   httpmodels.Item:
     properties:
       barcode:
@@ -20,6 +27,60 @@ definitions:
       width:
         type: integer
     type: object
+  httpmodels.ItemInRequest:
+    properties:
+      barcode:
+        type: integer
+      depth:
+        type: integer
+      height:
+        type: integer
+      id:
+        type: integer
+      image_url:
+        type: string
+      name:
+        type: string
+      quantity:
+        type: integer
+      quantityInRequest:
+        type: integer
+      status:
+        type: string
+      width:
+        type: integer
+    type: object
+  httpmodels.Request:
+    properties:
+      completionDate:
+        type: string
+      creationDate:
+        type: string
+      creatorID:
+        type: integer
+      formationDate:
+        type: string
+      id:
+        type: integer
+      status:
+        description: status in ('draft','deleted','formed','completed','rejected')
+        type: string
+    type: object
+  httpmodels.RequestID:
+    properties:
+      id:
+        type: integer
+    type: object
+  httpmodels.RequestStatus:
+    properties:
+      status:
+        type: string
+    type: object
+  httpmodels.TestingGetDraftRequestByIDResponse:
+    properties:
+      request:
+        $ref: '#/definitions/httpmodels.Request'
+    type: object
   httpmodels.TestingGetItemByIDResponse:
     properties:
       item:
@@ -30,6 +91,15 @@ definitions:
       items:
         items:
           $ref: '#/definitions/httpmodels.Item'
+        type: array
+      oderdID:
+        type: integer
+    type: object
+  httpmodels.TestingGetRequestsForAdminWithFiltersResponse:
+    properties:
+      requests:
+        items:
+          $ref: '#/definitions/httpmodels.Request'
         type: array
     type: object
   httpmodels.TestingLoginRequest:
@@ -78,72 +148,177 @@ definitions:
       userName:
         type: string
     type: object
+  httpmodels.UserRequest:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/httpmodels.ItemInRequest'
+        type: array
+      request:
+        $ref: '#/definitions/httpmodels.Request'
+    type: object
 info:
   contact: {}
 paths:
-  /item:
-    get:
-      consumes:
-      - application/json
-      description: Get data about item
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/httpmodels.TestingGetItemByIDResponse'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: GetItemById
-      tags:
-      - items
   /items:
     get:
       consumes:
       - application/json
-      description: Get data about active items
+      parameters:
+      - description: filter by search text
+        format: text
+        in: query
+        name: search
+        type: string
       produces:
       - application/json
       responses:
-        "201":
-          description: Created
+        "200":
+          description: OK
           schema:
             $ref: '#/definitions/httpmodels.TestingGetItemsResponse'
-        "400":
-          description: Bad Request
+      summary: Get list of all items
+      tags:
+      - items
+  /items/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: item id
+        format: text
+        in: path
+        name: id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
           schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
+            $ref: '#/definitions/httpmodels.TestingGetItemByIDResponse'
+      summary: Get item by id
+      tags:
+      - items
+  /items/{id}/delete:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: item id
+        format: text
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Delete item by id
+      tags:
+      - items
+  /items/{id}/post:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: item id
+        format: text
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
           schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: GetItems
+            $ref: '#/definitions/httpmodels.TestingGetDraftRequestByIDResponse'
+      summary: Post item to current order
+      tags:
+      - items
+  /items/{id}/put:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Item object
+        in: body
+        name: itemPrototype
+        required: true
+        schema:
+          $ref: '#/definitions/httpmodels.Item'
+      - description: item id
+        format: text
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Change item
+      tags:
+      - items
+  /items/image:
+    post:
+      consumes:
+      - multipart/form-data
+      - application/json
+      parameters:
+      - description: upload file
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: metadata
+        in: formData
+        name: metadata
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/httpmodels.ImageSwagger'
+      summary: Upload s3 file
+      tags:
+      - items
+  /items/post:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Item object
+        in: body
+        name: itemPrototype
+        required: true
+        schema:
+          $ref: '#/definitions/httpmodels.Item'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/httpmodels.Item'
+      summary: Create item
       tags:
       - items
   /login:
     post:
       consumes:
       - application/json
-      description: Login with the provided user credentials and receive a JWT token
       parameters:
-      - description: User credentials for login
+      - description: User object
         in: body
-        name: input
+        name: userCreds
         required: true
         schema:
           $ref: '#/definitions/httpmodels.TestingLoginRequest'
@@ -154,48 +329,163 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/httpmodels.TestingLoginResponse'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
       summary: Login
       tags:
-      - users
-  /protected/test:
+      - auth
+  /logout:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - default: token=xxx
+        description: token
+        in: header
+        name: Cookie
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Logout
+      tags:
+      - auth
+  /orders:
     get:
       consumes:
       - application/json
-      description: Test endpoint accessible only with valid Bearer Token
+      parameters:
+      - description: min date
+        format: text
+        in: query
+        name: min_date
+        type: string
+      - description: max date
+        format: text
+        in: query
+        name: max_date
+        type: string
+      - description: order status
+        format: text
+        in: query
+        name: status
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
-      security:
-      - ApiKeyAuth: []
-      summary: Protected test endpoint
+            $ref: '#/definitions/httpmodels.TestingGetRequestsForAdminWithFiltersResponse'
+      summary: Get list of all orders
       tags:
-      - users
-  /register:
+      - orders
+  /orders/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: order id
+        format: text
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/httpmodels.UserRequest'
+      summary: Get order by id
+      tags:
+      - orders
+  /orders/{id}/approve:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Order status
+        in: body
+        name: status
+        required: true
+        schema:
+          $ref: '#/definitions/httpmodels.RequestStatus'
+      - description: order id
+        format: text
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Approve or decline order
+      tags:
+      - orders
+  /orders/delete:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Order id
+        in: body
+        name: status
+        required: true
+        schema:
+          $ref: '#/definitions/httpmodels.RequestID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Delete order
+      tags:
+      - orders
+  /orders/items/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: item id
+        format: text
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/httpmodels.UserRequest'
+      summary: Delete item from current order
+      tags:
+      - orders
+  /orders/make:
+    put:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Confirm current order
+      tags:
+      - orders
+  /signup:
     post:
       consumes:
       - application/json
-      description: Register a new user with the provided user data
       parameters:
-      - description: User data to register
+      - description: User object
         in: body
-        name: input
+        name: userPrototype
         required: true
         schema:
           $ref: '#/definitions/httpmodels.TestingRegisterRequest'
@@ -206,19 +496,7 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/httpmodels.TestingRegisterResponse'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Register
+      summary: Sign up
       tags:
-      - users
+      - auth
 swagger: "2.0"

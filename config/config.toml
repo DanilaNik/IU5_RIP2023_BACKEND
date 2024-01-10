@@ -2,6 +2,6 @@ ServiceHost = "172.20.10.6"
 ServicePort = 7070
 
 [minio]
-user = "minioadmin"
-pass = "minioadmin"
-endpoint = "127.0.0.1:9000"
+user = "minio"
+pass = "minio124"
+endpoint = "172.20.10.6:9000"

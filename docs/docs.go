@@ -16,9 +16,8 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/item": {
+        "/items": {
             "get": {
-                "description": "Get data about item",
                 "consumes": [
                     "application/json"
                 ],
@@ -28,38 +27,66 @@ const docTemplate = `{
                 "tags": [
                     "items"
                 ],
-                "summary": "GetItemById",
+                "summary": "Get list of all items",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "text",
+                        "description": "filter by search text",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
-                    "201": {
-                        "description": "Created",
+                    "200": {
+                        "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/httpmodels.TestingGetItemByIDResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/httpmodels.TestingGetItemsResponse"
                         }
                     }
                 }
             }
         },
-        "/items": {
-            "get": {
-                "description": "Get data about active items",
+        "/items/image": {
+            "post": {
+                "consumes": [
+                    "multipart/form-data",
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "items"
+                ],
+                "summary": "Upload s3 file",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "upload file",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "metadata",
+                        "name": "metadata",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/httpmodels.ImageSwagger"
+                        }
+                    }
+                }
+            }
+        },
+        "/items/post": {
+            "post": {
                 "consumes": [
                     "application/json"
                 ],
@@ -69,38 +96,160 @@ const docTemplate = `{
                 "tags": [
                     "items"
                 ],
-                "summary": "GetItems",
+                "summary": "Create item",
+                "parameters": [
+                    {
+                        "description": "Item object",
+                        "name": "itemPrototype",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/httpmodels.Item"
+                        }
+                    }
+                ],
                 "responses": {
-                    "201": {
-                        "description": "Created",
+                    "200": {
+                        "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/httpmodels.TestingGetItemsResponse"
+                            "$ref": "#/definitions/httpmodels.Item"
+                        }
+                    }
+                }
+            }
+        },
+        "/items/{id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "items"
+                ],
+                "summary": "Get item by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "text",
+                        "description": "item id",
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/httpmodels.TestingGetItemByIDResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/items/{id}/delete": {
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "items"
+                ],
+                "summary": "Delete item by id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "text",
+                        "description": "item id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/items/{id}/post": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "items"
+                ],
+                "summary": "Post item to current order",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "text",
+                        "description": "item id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/httpmodels.TestingGetDraftRequestByIDResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/items/{id}/put": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "items"
+                ],
+                "summary": "Change item",
+                "parameters": [
+                    {
+                        "description": "Item object",
+                        "name": "itemPrototype",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/httpmodels.Item"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                    {
+                        "type": "integer",
+                        "format": "text",
+                        "description": "item id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     }
                 }
             }
         },
         "/login": {
             "post": {
-                "description": "Login with the provided user credentials and receive a JWT token",
                 "consumes": [
                     "application/json"
                 ],
@@ -108,13 +257,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "auth"
                 ],
                 "summary": "Login",
                 "parameters": [
                     {
-                        "description": "User credentials for login",
-                        "name": "input",
+                        "description": "User object",
+                        "name": "userCreds",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -128,36 +277,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/httpmodels.TestingLoginResponse"
                         }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
                     }
                 }
             }
         },
-        "/protected/test": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Test endpoint accessible only with valid Bearer Token",
+        "/logout": {
+            "post": {
                 "consumes": [
                     "application/json"
                 ],
@@ -165,23 +290,72 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "auth"
                 ],
-                "summary": "Protected test endpoint",
+                "summary": "Logout",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "token=xxx",
+                        "description": "token",
+                        "name": "Cookie",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/orders": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Get list of all orders",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "text",
+                        "description": "min date",
+                        "name": "min_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "format": "text",
+                        "description": "max date",
+                        "name": "max_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "format": "text",
+                        "description": "order status",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/httpmodels.TestingGetRequestsForAdminWithFiltersResponse"
                         }
                     }
                 }
             }
         },
-        "/register": {
-            "post": {
-                "description": "Register a new user with the provided user data",
+        "/orders/delete": {
+            "delete": {
                 "consumes": [
                     "application/json"
                 ],
@@ -189,13 +363,164 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "orders"
                 ],
-                "summary": "Register",
+                "summary": "Delete order",
                 "parameters": [
                     {
-                        "description": "User data to register",
-                        "name": "input",
+                        "description": "Order id",
+                        "name": "status",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/httpmodels.RequestID"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/orders/items/{id}": {
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Delete item from current order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "text",
+                        "description": "item id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/httpmodels.UserRequest"
+                        }
+                    }
+                }
+            }
+        },
+        "/orders/make": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Confirm current order",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/orders/{id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Get order by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "text",
+                        "description": "order id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/httpmodels.UserRequest"
+                        }
+                    }
+                }
+            }
+        },
+        "/orders/{id}/approve": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Approve or decline order",
+                "parameters": [
+                    {
+                        "description": "Order status",
+                        "name": "status",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/httpmodels.RequestStatus"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "format": "text",
+                        "description": "order id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/signup": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Sign up",
+                "parameters": [
+                    {
+                        "description": "User object",
+                        "name": "userPrototype",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -209,30 +534,23 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/httpmodels.TestingRegisterResponse"
                         }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
                     }
                 }
             }
         }
     },
     "definitions": {
+        "httpmodels.ImageSwagger": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "link": {
+                    "type": "string"
+                }
+            }
+        },
         "httpmodels.Item": {
             "type": "object",
             "properties": {
@@ -265,6 +583,89 @@ const docTemplate = `{
                 }
             }
         },
+        "httpmodels.ItemInRequest": {
+            "type": "object",
+            "properties": {
+                "barcode": {
+                    "type": "integer"
+                },
+                "depth": {
+                    "type": "integer"
+                },
+                "height": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "quantityInRequest": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "width": {
+                    "type": "integer"
+                }
+            }
+        },
+        "httpmodels.Request": {
+            "type": "object",
+            "properties": {
+                "completionDate": {
+                    "type": "string"
+                },
+                "creationDate": {
+                    "type": "string"
+                },
+                "creatorID": {
+                    "type": "integer"
+                },
+                "formationDate": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "status in ('draft','deleted','formed','completed','rejected')",
+                    "type": "string"
+                }
+            }
+        },
+        "httpmodels.RequestID": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "httpmodels.RequestStatus": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "httpmodels.TestingGetDraftRequestByIDResponse": {
+            "type": "object",
+            "properties": {
+                "request": {
+                    "$ref": "#/definitions/httpmodels.Request"
+                }
+            }
+        },
         "httpmodels.TestingGetItemByIDResponse": {
             "type": "object",
             "properties": {
@@ -280,6 +681,20 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/httpmodels.Item"
+                    }
+                },
+                "oderdID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "httpmodels.TestingGetRequestsForAdminWithFiltersResponse": {
+            "type": "object",
+            "properties": {
+                "requests": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/httpmodels.Request"
                     }
                 }
             }
@@ -352,6 +767,20 @@ const docTemplate = `{
                 },
                 "userName": {
                     "type": "string"
+                }
+            }
+        },
+        "httpmodels.UserRequest": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/httpmodels.ItemInRequest"
+                    }
+                },
+                "request": {
+                    "$ref": "#/definitions/httpmodels.Request"
                 }
             }
         }

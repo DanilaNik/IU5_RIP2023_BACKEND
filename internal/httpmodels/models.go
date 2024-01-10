@@ -1,6 +1,7 @@
 package httpmodels
 
 import (
+	"mime/multipart"
 	"time"
 
 	"github.com/DanilaNik/IU5_RIP2023/internal/service/role"
@@ -50,4 +51,21 @@ type ItemInRequest struct {
 type UserRequest struct {
 	Request Request          `json:"request"`
 	Items   []*ItemInRequest `json:"items"`
+}
+
+type FormSwagger struct {
+	File *multipart.FileHeader `form:"file" binding:"required"`
+}
+
+type ImageSwagger struct {
+	Link  string `json:"link"`
+	Error string `json:"error"`
+}
+
+type RequestStatus struct {
+	Status string `json:"status"`
+}
+
+type RequestID struct {
+	Id int64 `json:"id"`
 }
