@@ -12,4 +12,4 @@ migrate-minio:
 
 .PHONY: gen-docs
 gen-docs:
-	~/go/bin/swag init -g cmd/app/main.go   --parseDependency --parseInternal
+	swag init -g pkg/app/app.go    --parseDependency --parseInternal

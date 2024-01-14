@@ -4,22 +4,42 @@ import (
 	"github.com/DanilaNik/IU5_RIP2023/internal/ds"
 )
 
-func (r *Repository) GetItems(search string, host string) ([]*ds.Item, error) {
+func (r *Repository) GetItems(search string, material string, host string) ([]*ds.Item, error) {
 	var items []*ds.Item
 	if search != "" {
-		res := r.db.Where("deleted_at IS NULL").Where("status = $1", "enabled").Where("Name  ILIKE $2", "%"+search+"%").Order("id ASC").Find(&items)
-		for _, item := range items {
-			url := item.ImageURL
-			item.ImageURL = "http://" + host + url
+		if material != "" {
+			res := r.db.Where("deleted_at IS NULL").Where("material = $1", material).Where("status = $2", "enabled").Where("name  ILIKE $3", "%"+search+"%").Order("id ASC").Find(&items)
+			for _, item := range items {
+				url := item.ImageURL
+				item.ImageURL = "http://" + host + url
+			}
+			return items, res.Error
+		} else {
+			res := r.db.Where("deleted_at IS NULL").Where("status = $1", "enabled").Where("name  ILIKE $2", "%"+search+"%").Order("id ASC").Find(&items)
+			for _, item := range items {
+				url := item.ImageURL
+				item.ImageURL = "http://" + host + url
+			}
+			return items, res.Error
 		}
-		return items, res.Error
+	} else {
+		if material != "" {
+			res := r.db.Where("material = $1", material).Where("status = $2", "enabled").Find(&items)
+			for _, item := range items {
+				url := item.ImageURL
+				item.ImageURL = "http://" + host + url
+			}
+			return items, res.Error
+		} else {
+			res := r.db.Where("status = ?", "enabled").Find(&items)
+			for _, item := range items {
+				url := item.ImageURL
+				item.ImageURL = "http://" + host + url
+			}
+			return items, res.Error
+		}
 	}
-	res := r.db.Where("status = ?", "enabled").Find(&items)
-	for _, item := range items {
-		url := item.ImageURL
-		item.ImageURL = "http://" + host + url
-	}
-	return items, res.Error
+
 }
 
 func (r *Repository) GetItemByID(id int, host string) (*ds.Item, error) {

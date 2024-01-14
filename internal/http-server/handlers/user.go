@@ -52,16 +52,22 @@ func (h *Handler) Login(ctx *gin.Context) {
 		return
 	}
 
-	token, err := h.AuthorizationService.LoginUser(userJSON)
+	data, err := h.AuthorizationService.LoginUser(userJSON)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
-
 	ctx.SetSameSite(http.SameSiteLaxMode)
-	ctx.SetCookie("auth", token.Token, 3600*24*30, "", "", false, true)
+	ctx.SetCookie("auth", data.Token, 3600*24*30, "", "", false, true)
 
-	ctx.JSON(http.StatusOK, gin.H{"token": token})
+	res := httpmodels.TestingLoginResponse{
+		ID:       data.ID,
+		UserName: data.UserName,
+		Login:    data.Login,
+		Email:    data.Email,
+		Role:     data.Role,
+	}
+	ctx.JSON(http.StatusOK, res)
 }
 
 func (h *Handler) getUserRole(ctx *gin.Context) (string, string, error) {
@@ -258,19 +264,13 @@ func (h *Handler) Validate(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 		return
 	}
-	dataRequest, err := h.RequestService.GetDraftRequestByIdAndStatus(ctx, userId, "draft")
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
-		return
-	}
 
 	res := httpmodels.TestingValidateResponse{
-		ID:        dataUser.User.ID,
-		Login:     dataUser.User.Login,
-		Email:     dataUser.User.Email,
-		UserName:  dataUser.User.UserName,
-		Role:      dataUser.User.Role,
-		RequestID: dataRequest.Request.ID,
+		ID:       dataUser.User.ID,
+		Login:    dataUser.User.Login,
+		Email:    dataUser.User.Email,
+		UserName: dataUser.User.UserName,
+		Role:     dataUser.User.Role,
 	}
 
 	ctx.JSON(http.StatusOK, res)

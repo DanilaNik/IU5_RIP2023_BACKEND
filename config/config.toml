@@ -1,7 +1,7 @@
-ServiceHost = "172.20.10.6" 
-ServicePort = 7070
+ServiceHost = "localhost" 
+ServicePort = 8080
 
 [minio]
 user = "minio"
 pass = "minio124"
-endpoint = "172.20.10.6:9000"
+endpoint = "localhost:9000"

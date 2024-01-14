@@ -1,9 +1,9 @@
-service_host: "localhost" 
-service_port: 8181
+# service_host: "localhost" 
+# service_port: 8181
 
-minio:
-  user: minioadmin
-  pass: minioadmin
-  endpoint: 127.0.0.1:9000
+# minio:
+#   user: minioadmin
+#   pass: minioadmin
+#   endpoint: 127.0.0.1:9000
 
-# ServiceHost = "172.20.10.6" в toml файле
+# # ServiceHost = "172.20.10.6" в toml файле

@@ -115,6 +115,7 @@ func convertItemsToResponse(items []*ds.Item) []*httpmodels.Item {
 			ImageURL: item.ImageURL,
 			Status:   item.Status,
 			Quantity: item.Quantity,
+			Material: item.Material,
 			Height:   item.Height,
 			Width:    item.Width,
 			Depth:    item.Depth,

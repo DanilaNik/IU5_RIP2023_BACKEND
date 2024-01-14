@@ -35,13 +35,20 @@ const docTemplate = `{
                         "description": "filter by title",
                         "name": "title",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "format": "text",
+                        "description": "filter by material",
+                        "name": "material",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/httpmodels.TestingGetItemsResponse"
+                            "$ref": "#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingGetItemsResponse"
                         }
                     }
                 }
@@ -79,7 +86,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/httpmodels.ImageSwagger"
+                            "$ref": "#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.ImageSwagger"
                         }
                     }
                 }
@@ -104,7 +111,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/httpmodels.Item"
+                            "$ref": "#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.Item"
                         }
                     }
                 ],
@@ -112,7 +119,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/httpmodels.Item"
+                            "$ref": "#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.Item"
                         }
                     }
                 }
@@ -143,7 +150,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/httpmodels.TestingGetItemByIDResponse"
+                            "$ref": "#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingGetItemByIDResponse"
                         }
                     }
                 }
@@ -204,7 +211,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/httpmodels.TestingGetDraftRequestByIDResponse"
+                            "$ref": "#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingGetDraftRequestByIDResponse"
                         }
                     }
                 }
@@ -229,7 +236,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/httpmodels.Item"
+                            "$ref": "#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.Item"
                         }
                     },
                     {
@@ -267,7 +274,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/httpmodels.TestingLoginRequest"
+                            "$ref": "#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingLoginRequest"
                         }
                     }
                 ],
@@ -275,7 +282,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/httpmodels.TestingLoginResponse"
+                            "$ref": "#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingLoginResponse"
                         }
                     }
                 }
@@ -355,7 +362,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/httpmodels.TestingGetRequestsForAdminWithFiltersResponse"
+                            "$ref": "#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingGetRequestsForAdminWithFiltersResponse"
                         }
                     }
                 }
@@ -380,7 +387,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/httpmodels.RequestID"
+                            "$ref": "#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.RequestID"
                         }
                     }
                 ],
@@ -417,7 +424,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/httpmodels.UserRequest"
+                            "$ref": "#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.UserRequest"
                         }
                     }
                 }
@@ -468,7 +475,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/httpmodels.UserRequest"
+                            "$ref": "#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.UserRequest"
                         }
                     }
                 }
@@ -493,7 +500,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/httpmodels.RequestStatus"
+                            "$ref": "#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.RequestStatus"
                         }
                     },
                     {
@@ -531,7 +538,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/httpmodels.TestingRegisterRequest"
+                            "$ref": "#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingRegisterRequest"
                         }
                     }
                 ],
@@ -539,7 +546,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/httpmodels.TestingRegisterResponse"
+                            "$ref": "#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingRegisterResponse"
                         }
                     }
                 }
@@ -570,7 +577,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/httpmodels.TestingValidateResponse"
+                            "$ref": "#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingValidateResponse"
                         }
                     }
                 }
@@ -578,7 +585,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "httpmodels.ImageSwagger": {
+        "github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.ImageSwagger": {
             "type": "object",
             "properties": {
                 "error": {
@@ -589,7 +596,7 @@ const docTemplate = `{
                 }
             }
         },
-        "httpmodels.Item": {
+        "github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.Item": {
             "type": "object",
             "properties": {
                 "barcode": {
@@ -605,6 +612,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "image_url": {
+                    "type": "string"
+                },
+                "material": {
                     "type": "string"
                 },
                 "name": {
@@ -621,7 +631,7 @@ const docTemplate = `{
                 }
             }
         },
-        "httpmodels.ItemInRequest": {
+        "github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.ItemInRequest": {
             "type": "object",
             "properties": {
                 "barcode": {
@@ -637,6 +647,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "image_url": {
+                    "type": "string"
+                },
+                "material": {
                     "type": "string"
                 },
                 "name": {
@@ -656,7 +669,7 @@ const docTemplate = `{
                 }
             }
         },
-        "httpmodels.Request": {
+        "github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.Request": {
             "type": "object",
             "properties": {
                 "completionDate": {
@@ -680,7 +693,7 @@ const docTemplate = `{
                 }
             }
         },
-        "httpmodels.RequestID": {
+        "github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.RequestID": {
             "type": "object",
             "properties": {
                 "id": {
@@ -688,7 +701,7 @@ const docTemplate = `{
                 }
             }
         },
-        "httpmodels.RequestStatus": {
+        "github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.RequestStatus": {
             "type": "object",
             "properties": {
                 "status": {
@@ -696,48 +709,48 @@ const docTemplate = `{
                 }
             }
         },
-        "httpmodels.TestingGetDraftRequestByIDResponse": {
+        "github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingGetDraftRequestByIDResponse": {
             "type": "object",
             "properties": {
                 "request": {
-                    "$ref": "#/definitions/httpmodels.Request"
+                    "$ref": "#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.Request"
                 }
             }
         },
-        "httpmodels.TestingGetItemByIDResponse": {
+        "github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingGetItemByIDResponse": {
             "type": "object",
             "properties": {
                 "item": {
-                    "$ref": "#/definitions/httpmodels.Item"
+                    "$ref": "#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.Item"
                 }
             }
         },
-        "httpmodels.TestingGetItemsResponse": {
+        "github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingGetItemsResponse": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/httpmodels.Item"
+                        "$ref": "#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.Item"
                     }
                 },
-                "oderdID": {
+                "orderID": {
                     "type": "integer"
                 }
             }
         },
-        "httpmodels.TestingGetRequestsForAdminWithFiltersResponse": {
+        "github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingGetRequestsForAdminWithFiltersResponse": {
             "type": "object",
             "properties": {
                 "requests": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/httpmodels.Request"
+                        "$ref": "#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.Request"
                     }
                 }
             }
         },
-        "httpmodels.TestingLoginRequest": {
+        "github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingLoginRequest": {
             "type": "object",
             "properties": {
                 "login": {
@@ -748,15 +761,30 @@ const docTemplate = `{
                 }
             }
         },
-        "httpmodels.TestingLoginResponse": {
+        "github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingLoginResponse": {
             "type": "object",
             "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
                 "token": {
                     "type": "string"
+                },
+                "userName": {
+                    "type": "string"
                 }
             }
         },
-        "httpmodels.TestingRegisterRequest": {
+        "github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingRegisterRequest": {
             "type": "object",
             "properties": {
                 "email": {
@@ -782,7 +810,7 @@ const docTemplate = `{
                 }
             }
         },
-        "httpmodels.TestingRegisterResponse": {
+        "github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingRegisterResponse": {
             "type": "object",
             "properties": {
                 "email": {
@@ -808,7 +836,7 @@ const docTemplate = `{
                 }
             }
         },
-        "httpmodels.TestingValidateResponse": {
+        "github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingValidateResponse": {
             "type": "object",
             "properties": {
                 "email": {
@@ -831,17 +859,17 @@ const docTemplate = `{
                 }
             }
         },
-        "httpmodels.UserRequest": {
+        "github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.UserRequest": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/httpmodels.ItemInRequest"
+                        "$ref": "#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.ItemInRequest"
                     }
                 },
                 "request": {
-                    "$ref": "#/definitions/httpmodels.Request"
+                    "$ref": "#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.Request"
                 }
             }
         }

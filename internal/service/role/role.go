@@ -3,7 +3,6 @@ package role
 type Role string
 
 const (
-	User      = "User"
-	Moderator = "Moderator"
-	Admin     = "Admin"
+	User  = "User"
+	Admin = "Admin"
 )

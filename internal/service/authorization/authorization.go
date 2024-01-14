@@ -7,6 +7,7 @@ import (
 	"github.com/DanilaNik/IU5_RIP2023/internal/ds"
 	"github.com/DanilaNik/IU5_RIP2023/internal/httpmodels"
 	"github.com/DanilaNik/IU5_RIP2023/internal/repository"
+	"github.com/DanilaNik/IU5_RIP2023/internal/service/role"
 	"github.com/DanilaNik/IU5_RIP2023/pkg"
 )
 
@@ -28,7 +29,7 @@ func (a *AuthorizationService) RegisterUser(user httpmodels.TestingRegisterReque
 	if candidate.Email == user.Email {
 		return httpmodels.TestingRegisterResponse{}, errors.New("пользователь уже сущетсвует")
 	}
-
+	user.Role = role.User
 	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
 	if err != nil {
 		return httpmodels.TestingRegisterResponse{}, errors.New("failed to hash password")
@@ -58,29 +59,41 @@ func (a *AuthorizationService) RegisterUser(user httpmodels.TestingRegisterReque
 	}, nil
 }
 
-func (a *AuthorizationService) LoginUser(user httpmodels.TestingLoginRequest) (httpmodels.TestingLoginResponse, error) {
-	candidate, err := a.Repository.GetUserByLogin(user.Login)
+func (a *AuthorizationService) LoginUser(req httpmodels.TestingLoginRequest) (*httpmodels.TestingLoginResponse, error) {
+	candidate, err := a.Repository.GetUserByLogin(req.Login)
 	if err != nil {
-		return httpmodels.TestingLoginResponse{Token: ""}, err
+		return nil, err
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(candidate.Password), []byte(user.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(candidate.Password), []byte(req.Password))
 	if err != nil {
-		return httpmodels.TestingLoginResponse{Token: ""}, errors.New("неправильный пароль или логин")
+		return nil, errors.New("неправильный пароль или логин")
 	}
 
 	token, err := pkg.GenerateJWTToken(uint(candidate.ID), candidate.Role)
 
 	if err != nil {
-		return httpmodels.TestingLoginResponse{Token: ""}, err
+		return nil, err
 	}
 
 	err = a.Repository.SaveJWTToken(uint(candidate.ID), token)
 	if err != nil {
-		return httpmodels.TestingLoginResponse{Token: ""}, err
+		return nil, err
 	}
 
-	return httpmodels.TestingLoginResponse{Token: token}, nil
+	user, err := a.Repository.GetUserByLogin(req.Login)
+	if err != nil {
+		return nil, err
+	}
+
+	return &httpmodels.TestingLoginResponse{
+		ID:       user.ID,
+		UserName: user.UserName,
+		Login:    user.Login,
+		Email:    user.Email,
+		Role:     user.Role,
+		Token:    token,
+	}, nil
 }
 
 func (a *AuthorizationService) LogoutUser(id string) error {

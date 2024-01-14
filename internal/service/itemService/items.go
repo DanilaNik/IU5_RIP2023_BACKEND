@@ -22,8 +22,8 @@ func NewItemService(repo *repository.Repository, cfg *config.Config) *ItemServic
 	}
 }
 
-func (i *ItemService) GetItems(ctx context.Context, searchText string) (*httpmodels.TestingGetItemsResponse, error) {
-	items, err := i.Repository.GetItems(searchText, i.Config.ServiceHost)
+func (i *ItemService) GetItems(ctx context.Context, searchText string, material string) (*httpmodels.TestingGetItemsResponse, error) {
+	items, err := i.Repository.GetItems(searchText, material, i.Config.ServiceHost)
 	if err != nil {
 		return nil, errors.Wrap(err, "get online items")
 	}
@@ -48,6 +48,7 @@ func (i *ItemService) GetItemByID(ctx context.Context, req *httpmodels.TestingGe
 			ImageURL: item.ImageURL,
 			Status:   item.Status,
 			Quantity: item.Quantity,
+			Material: item.Material,
 			Height:   item.Height,
 			Width:    item.Width,
 			Depth:    item.Depth,
@@ -93,6 +94,7 @@ func (i *ItemService) PutItem(ctx context.Context, req *httpmodels.TestingPutIte
 		ImageURL: req.Item.ImageURL,
 		Status:   req.Item.Status,
 		Quantity: req.Item.Quantity,
+		Material: req.Item.Material,
 		Height:   req.Item.Height,
 		Width:    req.Item.Width,
 		Depth:    req.Item.Depth,
@@ -119,6 +121,7 @@ func convertToResponse(items []*ds.Item) []*httpmodels.Item {
 			ImageURL: item.ImageURL,
 			Status:   item.Status,
 			Quantity: item.Quantity,
+			Material: item.Material,
 			Height:   item.Height,
 			Width:    item.Width,
 			Depth:    item.Depth,

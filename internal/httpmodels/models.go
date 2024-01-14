@@ -13,6 +13,7 @@ type Item struct {
 	ImageURL string `json:"image_url"`
 	Status   string `json:"status"`
 	Quantity uint64 `json:"quantity"`
+	Material string `json:"material"`
 	Height   uint64 `json:"height"`
 	Width    uint64 `json:"width"`
 	Depth    uint64 `json:"depth"`

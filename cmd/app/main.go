@@ -1,8 +1,6 @@
 package main
 
 import (
-	"net/http"
-
 	"github.com/DanilaNik/IU5_RIP2023/internal/config"
 	"github.com/DanilaNik/IU5_RIP2023/internal/dsn"
 	"github.com/DanilaNik/IU5_RIP2023/internal/http-server/handlers"
@@ -17,6 +15,24 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
+
+// @title           Система заявок на производстве
+// @version         1.0
+
+// @contact.name   Корецкий К.В.
+// @contact.url    https://github.com/korzck
+// @contact.email  konstantin.koretskiy@gmail.com
+
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host      localhost:8080
+// @BasePath  /
+
+// @securityDefinitions.basic  BasicAuth
+
+// @externalDocs.description  Курс РИП ИУ5
+// @externalDocs.url          https://github.com/iu5git/Web/
 
 func main() {
 	logger := logrus.New()
@@ -43,16 +59,16 @@ func main() {
 
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+
 		c.Header("Access-Control-Allow-Origin", "http://localhost:5173")
 		c.Header("Access-Control-Allow-Credentials", "true")
 		c.Header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-		c.Header("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE, PATCH")
+		c.Header("Access-Control-Allow-Methods", "POST,HEAD,PATCH, OPTIONS, GET, PUT, DELETE")
 
 		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(http.StatusNoContent)
+			c.AbortWithStatus(204)
 			return
 		}
-
 		c.Next()
 	}
 }

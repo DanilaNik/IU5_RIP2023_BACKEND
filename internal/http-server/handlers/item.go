@@ -64,6 +64,7 @@ func (h *Handler) LoadS3(ctx *gin.Context) {
 // @Summary      Get list of all items
 // @Tags         items
 // @Param        title    query     string  false  "filter by title"  Format(text)
+// @Param        material    query     string  false  "filter by material"  Format(text)
 // @Accept       json
 // @Produce      json
 // @Success      200  {object}  httpmodels.TestingGetItemsResponse
@@ -71,7 +72,8 @@ func (h *Handler) LoadS3(ctx *gin.Context) {
 func (h *Handler) GetItems(ctx *gin.Context) {
 	userId, _, userErr := h.getUserRole(ctx)
 	searchText := ctx.Query("title")
-	resp, err := h.ItemService.GetItems(ctx, searchText)
+	material := ctx.Query("material")
+	resp, err := h.ItemService.GetItems(ctx, searchText, material)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 		return
@@ -88,26 +90,10 @@ func (h *Handler) GetItems(ctx *gin.Context) {
 	}
 
 	dataRequest, err := h.RequestService.GetDraftRequestByIdAndStatus(ctx, id, "draft")
-	if err != nil {
-		req1 := &httpmodels.TestingPostRequestRequest{
-			Request: httpmodels.Request{
-				CreatorID: uint64(id),
-				Status:    "draft",
-			},
-		}
-		err1 := h.RequestService.PostRequest(ctx, req1)
-		if err1 != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err1.Error()})
-			return
-		}
-		dataRequest, err1 = h.RequestService.GetDraftRequestByIdAndStatus(ctx, id, "draft")
-		if err1 != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err1.Error()})
-			return
-		}
+	if err == nil {
+		resp.OrderID = dataRequest.Request.ID
 	}
 
-	resp.OrderID = dataRequest.Request.ID
 	ctx.JSON(http.StatusOK, resp)
 }
 

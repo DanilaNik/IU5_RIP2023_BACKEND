@@ -32,16 +32,22 @@ type TestingLoginRequest struct {
 }
 
 type TestingLoginResponse struct {
-	Token string `json:"token"`
+	ID       uint64    `json:"id"`
+	UserName string    `json:"userName"`
+	Login    string    `json:"login"`
+	Email    string    `json:"email"`
+	Role     role.Role `json:"role"`
+	Token    string    `json:"token"`
 }
 
 type TestingGetItemsRequest struct {
-	SearchText string `json:"SearchText"`
+	SearchText string `json:"searchText"`
+	Material   string `json:"material"`
 }
 
 type TestingGetItemsResponse struct {
 	Items   []*Item `json:"items"`
-	OrderID uint64  `json:"oderdID"`
+	OrderID uint64  `json:"orderID"`
 }
 
 type TestingGetItemByIDRequest struct {
@@ -84,11 +90,6 @@ type TestingGetDraftRequestByIDRequest struct {
 type TestingGetDraftRequestByIDResponse struct {
 	Request Request `json:"request"`
 }
-
-// type TestingPostItemToRequestRequest struct {
-// 	UserID int64  `json:"userID"`
-// 	Status string `json:"status"`
-// }
 
 type TestingPostItemToRequestResponse struct {
 	RequestItem RequestItem `json:"requestItem"`

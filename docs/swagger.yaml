@@ -1,12 +1,12 @@
 definitions:
-  httpmodels.ImageSwagger:
+  github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.ImageSwagger:
     properties:
       error:
         type: string
       link:
         type: string
     type: object
-  httpmodels.Item:
+  github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.Item:
     properties:
       barcode:
         type: integer
@@ -17,6 +17,8 @@ definitions:
       id:
         type: integer
       image_url:
+        type: string
+      material:
         type: string
       name:
         type: string
@@ -27,7 +29,7 @@ definitions:
       width:
         type: integer
     type: object
-  httpmodels.ItemInRequest:
+  github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.ItemInRequest:
     properties:
       barcode:
         type: integer
@@ -38,6 +40,8 @@ definitions:
       id:
         type: integer
       image_url:
+        type: string
+      material:
         type: string
       name:
         type: string
@@ -50,7 +54,7 @@ definitions:
       width:
         type: integer
     type: object
-  httpmodels.Request:
+  github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.Request:
     properties:
       completionDate:
         type: string
@@ -66,55 +70,65 @@ definitions:
         description: status in ('draft','deleted','formed','completed','rejected')
         type: string
     type: object
-  httpmodels.RequestID:
+  github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.RequestID:
     properties:
       id:
         type: integer
     type: object
-  httpmodels.RequestStatus:
+  github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.RequestStatus:
     properties:
       status:
         type: string
     type: object
-  httpmodels.TestingGetDraftRequestByIDResponse:
+  github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingGetDraftRequestByIDResponse:
     properties:
       request:
-        $ref: '#/definitions/httpmodels.Request'
+        $ref: '#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.Request'
     type: object
-  httpmodels.TestingGetItemByIDResponse:
+  github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingGetItemByIDResponse:
     properties:
       item:
-        $ref: '#/definitions/httpmodels.Item'
+        $ref: '#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.Item'
     type: object
-  httpmodels.TestingGetItemsResponse:
+  github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingGetItemsResponse:
     properties:
       items:
         items:
-          $ref: '#/definitions/httpmodels.Item'
+          $ref: '#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.Item'
         type: array
-      oderdID:
+      orderID:
         type: integer
     type: object
-  httpmodels.TestingGetRequestsForAdminWithFiltersResponse:
+  github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingGetRequestsForAdminWithFiltersResponse:
     properties:
       requests:
         items:
-          $ref: '#/definitions/httpmodels.Request'
+          $ref: '#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.Request'
         type: array
     type: object
-  httpmodels.TestingLoginRequest:
+  github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingLoginRequest:
     properties:
       login:
         type: string
       password:
         type: string
     type: object
-  httpmodels.TestingLoginResponse:
+  github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingLoginResponse:
     properties:
+      email:
+        type: string
+      id:
+        type: integer
+      login:
+        type: string
+      role:
+        type: string
       token:
         type: string
+      userName:
+        type: string
     type: object
-  httpmodels.TestingRegisterRequest:
+  github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingRegisterRequest:
     properties:
       email:
         type: string
@@ -131,7 +145,7 @@ definitions:
       userName:
         type: string
     type: object
-  httpmodels.TestingRegisterResponse:
+  github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingRegisterResponse:
     properties:
       email:
         type: string
@@ -148,7 +162,7 @@ definitions:
       userName:
         type: string
     type: object
-  httpmodels.TestingValidateResponse:
+  github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingValidateResponse:
     properties:
       email:
         type: string
@@ -163,14 +177,14 @@ definitions:
       userName:
         type: string
     type: object
-  httpmodels.UserRequest:
+  github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.UserRequest:
     properties:
       items:
         items:
-          $ref: '#/definitions/httpmodels.ItemInRequest'
+          $ref: '#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.ItemInRequest'
         type: array
       request:
-        $ref: '#/definitions/httpmodels.Request'
+        $ref: '#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.Request'
     type: object
 info:
   contact: {}
@@ -185,13 +199,18 @@ paths:
         in: query
         name: title
         type: string
+      - description: filter by material
+        format: text
+        in: query
+        name: material
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/httpmodels.TestingGetItemsResponse'
+            $ref: '#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingGetItemsResponse'
       summary: Get list of all items
       tags:
       - items
@@ -211,7 +230,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/httpmodels.TestingGetItemByIDResponse'
+            $ref: '#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingGetItemByIDResponse'
       summary: Get item by id
       tags:
       - items
@@ -251,7 +270,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/httpmodels.TestingGetDraftRequestByIDResponse'
+            $ref: '#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingGetDraftRequestByIDResponse'
       summary: Post item to current order
       tags:
       - items
@@ -265,7 +284,7 @@ paths:
         name: itemPrototype
         required: true
         schema:
-          $ref: '#/definitions/httpmodels.Item'
+          $ref: '#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.Item'
       - description: item id
         format: text
         in: path
@@ -301,7 +320,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/httpmodels.ImageSwagger'
+            $ref: '#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.ImageSwagger'
       summary: Upload s3 file
       tags:
       - items
@@ -315,14 +334,14 @@ paths:
         name: itemPrototype
         required: true
         schema:
-          $ref: '#/definitions/httpmodels.Item'
+          $ref: '#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.Item'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/httpmodels.Item'
+            $ref: '#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.Item'
       summary: Create item
       tags:
       - items
@@ -336,14 +355,14 @@ paths:
         name: userCreds
         required: true
         schema:
-          $ref: '#/definitions/httpmodels.TestingLoginRequest'
+          $ref: '#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingLoginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/httpmodels.TestingLoginResponse'
+            $ref: '#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingLoginResponse'
       summary: Login
       tags:
       - auth
@@ -396,7 +415,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/httpmodels.TestingGetRequestsForAdminWithFiltersResponse'
+            $ref: '#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingGetRequestsForAdminWithFiltersResponse'
       summary: Get list of all orders
       tags:
       - orders
@@ -417,7 +436,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/httpmodels.UserRequest'
+            $ref: '#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.UserRequest'
       summary: Get order by id
       tags:
       - orders
@@ -431,7 +450,7 @@ paths:
         name: status
         required: true
         schema:
-          $ref: '#/definitions/httpmodels.RequestStatus'
+          $ref: '#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.RequestStatus'
       - description: order id
         format: text
         in: path
@@ -456,7 +475,7 @@ paths:
         name: id
         required: true
         schema:
-          $ref: '#/definitions/httpmodels.RequestID'
+          $ref: '#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.RequestID'
       produces:
       - application/json
       responses:
@@ -482,7 +501,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/httpmodels.UserRequest'
+            $ref: '#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.UserRequest'
       summary: Delete item from current order
       tags:
       - orders
@@ -508,14 +527,14 @@ paths:
         name: userPrototype
         required: true
         schema:
-          $ref: '#/definitions/httpmodels.TestingRegisterRequest'
+          $ref: '#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingRegisterRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/httpmodels.TestingRegisterResponse'
+            $ref: '#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingRegisterResponse'
       summary: Sign up
       tags:
       - auth
@@ -535,7 +554,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/httpmodels.TestingValidateResponse'
+            $ref: '#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingValidateResponse'
       summary: validate auth
       tags:
       - auth
