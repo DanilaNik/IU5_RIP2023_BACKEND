@@ -58,22 +58,22 @@ func (r *Repository) PostRequestItem(requestItem ds.ItemsRequest) error {
 func (r *Repository) GetRequestsForAdminWithFilters(minData time.Time, maxData time.Time, status string) ([]*ds.Request, error) {
 	var requests []*ds.Request
 	if status == "all" {
-		res := r.db.Where("deleted_at IS NULL").Where("status != 'draft' AND status != 'deleted'").Where("created_at <= ?", maxData).Where("created_at >= ?", minData).Find(&requests)
+		res := r.db.Where("deleted_at IS NULL").Where("status != 'draft' AND status != 'deleted'").Where("formation_date <= ?", maxData).Where("formation_date >= ?", minData).Find(&requests)
 		return requests, res.Error
 	}
 
-	res := r.db.Where("deleted_at IS NULL").Where("status != 'deleted' AND status = ?", status).Where("created_at <= ?", maxData).Where("created_at >= ?", minData).Find(&requests)
+	res := r.db.Where("deleted_at IS NULL").Where("status != 'deleted' AND status = ?", status).Where("formation_date <= ?", maxData).Where("formation_date >= ?", minData).Find(&requests)
 	return requests, res.Error
 }
 
 func (r *Repository) GetRequestsForAdminWithFiltersAndUser(minData time.Time, maxData time.Time, status string, id uint64) ([]*ds.Request, error) {
 	var requests []*ds.Request
 	if status == "all" {
-		res := r.db.Where("deleted_at IS NULL").Where("creator_id = ?", id).Where("status != 'draft' AND status != 'deleted'").Where("created_at <= ?", maxData).Where("created_at >= ?", minData).Find(&requests)
+		res := r.db.Where("deleted_at IS NULL").Where("creator_id = ?", id).Where("status != 'draft' AND status != 'deleted'").Where("formation_date <= ?", maxData).Where("formation_date >= ?", minData).Find(&requests)
 		return requests, res.Error
 	}
 
-	res := r.db.Where("deleted_at IS NULL").Where("creator_id = ?", id).Where("status != 'deleted' AND status = ?", status).Where("created_at <= ?", maxData).Where("created_at >= ?", minData).Find(&requests)
+	res := r.db.Where("deleted_at IS NULL").Where("creator_id = ?", id).Where("status != 'deleted' AND status = ?", status).Where("formation_date <= ?", maxData).Where("formation_date >= ?", minData).Find(&requests)
 	return requests, res.Error
 }
 
@@ -107,7 +107,11 @@ func (r *Repository) PutRequestStatus(id int64, status string) error {
 	}
 
 	request.Status = status
-
+	if request.Status == "completed" {
+		location, _ := time.LoadLocation("Europe/Moscow")
+		currentDate := time.Now().In(location).Truncate(24 * time.Hour)
+		request.CompletionDate = currentDate
+	}
 	if err := r.db.Save(&request).Error; err != nil {
 		return err
 	}
@@ -123,7 +127,9 @@ func (r *Repository) ConfirmRequest(id int64, status string) error {
 
 	request.Status = status
 
-	currentDate := time.Now().Truncate(24 * time.Hour)
+	location, _ := time.LoadLocation("Europe/Moscow")
+	currentDate := time.Now().In(location).Truncate(24 * time.Hour)
+
 	request.CreatedAt = time.Now()
 	request.CreationDate = currentDate
 	request.FormationDate = currentDate

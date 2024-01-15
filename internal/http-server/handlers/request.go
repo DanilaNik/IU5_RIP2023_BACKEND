@@ -35,7 +35,6 @@ func (h *Handler) GetRequests(ctx *gin.Context) {
 		max := ctx.Query("max_date")
 		min := ctx.Query("min_date")
 		status := ctx.Query("status")
-		login := ctx.Query("login")
 
 		var minTime, maxTime time.Time
 
@@ -47,12 +46,14 @@ func (h *Handler) GetRequests(ctx *gin.Context) {
 		} else {
 			maxTime = time.Now()
 		}
+		if status == "" {
+			status = "all"
+		}
 
 		req := httpmodels.TestingGetRequestsForAdminWithFiltersRequest{
 			MinData: minTime,
 			MaxData: maxTime,
 			Status:  status,
-			Login:   login,
 		}
 		data, err := h.RequestService.GetRequestsForAdminWithFilters(ctx, &req)
 		if err != nil {
