@@ -672,6 +672,9 @@ const docTemplate = `{
         "github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.Request": {
             "type": "object",
             "properties": {
+                "adminID": {
+                    "type": "integer"
+                },
                 "completionDate": {
                     "type": "string"
                 },
@@ -698,6 +701,36 @@ const docTemplate = `{
             "properties": {
                 "id": {
                     "type": "integer"
+                }
+            }
+        },
+        "github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.RequestInfo": {
+            "type": "object",
+            "properties": {
+                "adminID": {
+                    "type": "integer"
+                },
+                "completionDate": {
+                    "type": "string"
+                },
+                "creationDate": {
+                    "type": "string"
+                },
+                "creatorID": {
+                    "type": "integer"
+                },
+                "formationDate": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "status in ('draft','deleted','formed','completed','rejected')",
+                    "type": "string"
+                },
+                "userEmail": {
+                    "type": "string"
                 }
             }
         },
@@ -745,7 +778,7 @@ const docTemplate = `{
                 "requests": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.Request"
+                        "$ref": "#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.RequestInfo"
                     }
                 }
             }

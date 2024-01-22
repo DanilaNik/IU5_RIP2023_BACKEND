@@ -65,6 +65,7 @@ func (i *ItemService) PostItem(ctx context.Context, req *httpmodels.TestingPostI
 		ImageURL: req.Item.ImageURL,
 		Status:   req.Item.Status,
 		Quantity: req.Item.Quantity,
+		Material: req.Item.Material,
 		Height:   req.Item.Height,
 		Width:    req.Item.Width,
 		Depth:    req.Item.Depth,

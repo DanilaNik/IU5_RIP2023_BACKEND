@@ -47,9 +47,8 @@ func (h *Handler) LoadS3(ctx *gin.Context) {
 	reqParams := make(url.Values)
 	link, err := h.Minio.PresignedGetObject(context.Background(), "warehouse", newFileName, 7*24*time.Hour, reqParams)
 	if link != nil {
-		convertLink := link.Port() + link.Path
 		ctx.JSON(http.StatusOK, httpmodels.ImageSwagger{
-			Link:  convertLink,
+			Link:  link.String(),
 			Error: "",
 		})
 	} else {
@@ -152,6 +151,8 @@ func (h *Handler) PostItem(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 		return
 	}
+
+	item.Status = "enabled"
 
 	req := httpmodels.TestingPostItemRequest{
 		Item: item,
@@ -270,10 +271,15 @@ func (h *Handler) PostItemToRequest(ctx *gin.Context) {
 
 	dataRequest, err := h.RequestService.GetDraftRequestByIdAndStatus(ctx, id, "draft")
 	if err != nil {
+		location, _ := time.LoadLocation("Europe/Moscow")
+
+		day := time.Now().In(location)
+
 		req1 := &httpmodels.TestingPostRequestRequest{
 			Request: httpmodels.Request{
-				CreatorID: uint64(id),
-				Status:    "draft",
+				CreatorID:    uint64(id),
+				Status:       "draft",
+				CreationDate: day,
 			},
 		}
 		err1 := h.RequestService.PostRequest(ctx, req1)

@@ -37,6 +37,7 @@ type Request struct {
 	FormationDate  time.Time `json:"formationDate"`
 	CompletionDate time.Time `json:"completionDate"`
 	CreatorID      uint64    `json:"creatorID"`
+	AdminID        uint64    `json:"adminID"`
 }
 
 type RequestItem struct {
@@ -52,6 +53,17 @@ type ItemInRequest struct {
 type UserRequest struct {
 	Request Request          `json:"request"`
 	Items   []*ItemInRequest `json:"items"`
+}
+
+type RequestInfo struct {
+	ID             uint64    `json:"id"`
+	Status         string    `json:"status"` //status in ('draft','deleted','formed','completed','rejected')
+	CreationDate   time.Time `json:"creationDate"`
+	FormationDate  time.Time `json:"formationDate"`
+	CompletionDate time.Time `json:"completionDate"`
+	CreatorID      uint64    `json:"creatorID"`
+	AdminID        uint64    `json:"adminID"`
+	UserEmail      string    `json:"userEmail"`
 }
 
 type FormSwagger struct {

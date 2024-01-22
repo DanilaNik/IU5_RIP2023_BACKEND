@@ -56,6 +56,8 @@ definitions:
     type: object
   github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.Request:
     properties:
+      adminID:
+        type: integer
       completionDate:
         type: string
       creationDate:
@@ -74,6 +76,26 @@ definitions:
     properties:
       id:
         type: integer
+    type: object
+  github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.RequestInfo:
+    properties:
+      adminID:
+        type: integer
+      completionDate:
+        type: string
+      creationDate:
+        type: string
+      creatorID:
+        type: integer
+      formationDate:
+        type: string
+      id:
+        type: integer
+      status:
+        description: status in ('draft','deleted','formed','completed','rejected')
+        type: string
+      userEmail:
+        type: string
     type: object
   github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.RequestStatus:
     properties:
@@ -103,7 +125,7 @@ definitions:
     properties:
       requests:
         items:
-          $ref: '#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.Request'
+          $ref: '#/definitions/github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.RequestInfo'
         type: array
     type: object
   github_com_DanilaNik_IU5_RIP2023_internal_httpmodels.TestingLoginRequest:

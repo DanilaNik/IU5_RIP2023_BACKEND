@@ -39,12 +39,15 @@ func (h *Handler) GetRequests(ctx *gin.Context) {
 		var minTime, maxTime time.Time
 
 		if min != "" {
-			minTime, _ = time.Parse("2006-01-02", min)
+			minTime, _ = time.Parse("2006-01-02 15:04:05", min+" 00:00:00")
 		}
 		if max != "" {
-			maxTime, _ = time.Parse("2006-01-02", max)
+			maxTime, _ = time.Parse("2006-01-02 15:04:05", max+" 23:59:59")
 		} else {
-			maxTime = time.Now()
+			location, _ := time.LoadLocation("Europe/Moscow")
+
+			day := time.Now().In(location)
+			maxTime = time.Date(day.Year(), day.Month(), day.Day(), 23, 59, 59, 0, location)
 		}
 		if status == "" {
 			status = "all"
@@ -133,7 +136,7 @@ func (h *Handler) GetRequestById(ctx *gin.Context) {
 // @Success      200
 // @Router       /orders/{id}/approve [put]
 func (h *Handler) PutRequestStatus(ctx *gin.Context) {
-	_, role, err := h.getUserRole(ctx)
+	id, role, err := h.getUserRole(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"error": err.Error(),
@@ -145,7 +148,7 @@ func (h *Handler) PutRequestStatus(ctx *gin.Context) {
 		ctx.JSON(http.StatusForbidden, gin.H{})
 		return
 	}
-
+	userId, _ := strconv.ParseInt(id, 10, 64)
 	requesId, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
 
 	jsonData, err := ctx.GetRawData()
@@ -165,8 +168,9 @@ func (h *Handler) PutRequestStatus(ctx *gin.Context) {
 	}
 
 	req := httpmodels.TestingPutRequestStatusRequest{
-		ID:     requesId,
-		Status: status.Status,
+		ID:      requesId,
+		AdminId: userId,
+		Status:  status.Status,
 	}
 
 	err = h.RequestService.PutRequestStatus(ctx, &req)

@@ -111,11 +111,10 @@ type TestingGetRequestsForAdminWithFiltersRequest struct {
 	MinData time.Time `json:"minData"`
 	MaxData time.Time `json:"maxData"`
 	Status  string    `json:"status"`
-	Login   string    `json:"login"`
 }
 
 type TestingGetRequestsForAdminWithFiltersResponse struct {
-	Requests []*Request `json:"requests"`
+	Requests []*RequestInfo `json:"requests"`
 }
 
 type TestingGetRequestsRequest struct {
@@ -143,8 +142,9 @@ type TestingGetRequestByIDResponse struct {
 }
 
 type TestingPutRequestStatusRequest struct {
-	ID     int64  `json:"id"`
-	Status string `json:"status"`
+	ID      int64  `json:"id"`
+	AdminId int64  `json:"adminID"`
+	Status  string `json:"status"`
 }
 
 type TestingDeleteRequestRequest struct {

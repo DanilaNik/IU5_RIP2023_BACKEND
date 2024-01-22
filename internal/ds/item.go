@@ -12,7 +12,7 @@ type Item struct {
 	gorm.Model
 	ID       uint64 `json:"id" gorm:"primary_key"`
 	Name     string `json:"name" gorm:"type:varchar(300);not null"`
-	ImageURL string `json:"image_url" gorm:"type:varchar(500);default:'https://raw.githubusercontent.com/DanilaNik/IU5_RIP2023/lab1/resources/Intel-Core-i7-9700K.jpg'"`
+	ImageURL string `json:"image_url" gorm:"type:varchar(500);default:':9000/warehouse/default-item.jpeg'"`
 	Status   string `json:"status" gorm:"type:varchar(30);check:status IN ('enabled', 'deleted');not null"`
 	Quantity uint64 `json:"quantity" gorm:"default:0;not null"`
 	Material string `json:"material" gorm:"type:varchar(50);not null"`
