@@ -16,7 +16,6 @@ import (
 // @Param        min_date    query     string  false  "min date"  Format(text)
 // @Param        max_date    query     string  false  "max date"  Format(text)
 // @Param        status      query     string  false  "order status"  Format(text)
-// @Param        login       query     string  false  "order creator"  Format(text)
 // @Accept       json
 // @Produce      json
 // @Success      200  {object}  httpmodels.TestingGetRequestsForAdminWithFiltersResponse
