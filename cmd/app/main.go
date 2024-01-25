@@ -16,12 +16,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// @title           Система заявок на производстве
+// @title           Склад комплектующих
 // @version         1.0
 
-// @contact.name   Корецкий К.В.
-// @contact.url    https://github.com/korzck
-// @contact.email  konstantin.koretskiy@gmail.com
+// @contact.name   Никулин Д.Д.
+// @contact.url    https://github.com/DanilaNik
 
 // @license.name  Apache 2.0
 // @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
