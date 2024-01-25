@@ -426,11 +426,6 @@ paths:
         in: query
         name: status
         type: string
-      - description: order creator
-        format: text
-        in: query
-        name: login
-        type: string
       produces:
       - application/json
       responses:
